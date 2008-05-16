@@ -1,0 +1,11 @@
+/*  JPlus JavaScript framework, version <%= JPLUS_VERSION %>
+ *  (c) 2008 nowa(nowazhu@gmail.com)、cricy(feiyelanghai@gmail.com)
+ *
+ *  JPlus is based Prototype Javascript Framework,  
+ *  and freely distributable under the terms of an MIT-style license.
+ *  For details, see the JPlus web site: http://jplus.welost.us/
+ *
+ *  这是一个Prototype、Ruby风格的框架，从它们里面借鉴了不少东西。其中的一些代码来自Prototype，感谢它的开发者们。
+ *  2008-05-16 Alimama, Hangzhou, China.
+ *
+ *--------------------------------------------------------------------------*/

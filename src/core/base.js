@@ -1,3 +1,7 @@
+/**
+ * 基础方法及类库
+ */
+
 // 为Object对象添加继承方法
 Object.extend = function(destination, source) {
   for (var property in source)

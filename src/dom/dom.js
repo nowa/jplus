@@ -21,4 +21,11 @@ function $(element) {
   return Element.extend(element);
 }
 
-var Element= {};
+// element constructor
+var Element = window.Element || {};
+
+
+
+Element.extend = function() {
+	
+};

@@ -1,3 +1,15 @@
+/**
+ * 对Array的扩展，以及相关方法
+ */
+
+/**
+ * 将可以枚举的对象转化为Array
+ *
+ * @author from Prototype1.6
+ * @method $A
+ * @param {Object} 可枚举的对象
+ * @return {Array} array
+ */
 function $A(iterable) {
   if (!iterable) return [];
   if (iterable.toArray) return iterable.toArray();
@@ -5,3 +17,4 @@ function $A(iterable) {
   while (length--) results[length] = iterable[length];
   return results;
 }
+

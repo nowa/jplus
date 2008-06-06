@@ -7,8 +7,8 @@
  *
  * @author from Prototype1.6
  * @method $
- * @param {object} 参数可以是Array也可以是String
- * @return {object} 如果参数是Array，那么返回值也是一个element数组；如果参数是String，返回值是element object
+ * @param {Object} 参数可以是Array也可以是String
+ * @return {Array or Element} 如果参数是Array，那么返回值也是一个element数组；如果参数是String，返回值是element object
  */
 function $(element) {
   if (arguments.length > 1) {
@@ -29,7 +29,8 @@ Element.Methods = {
 	 * 元素可见状态
 	 * 
 	 * @author from Prototype1.6
-	 * @method Element.visible
+	 * @class Element.Methods
+	 * @method visible
 	 * @param {HTMLElement} html元素
 	 * @return {BOOLEAN} 布尔值
 	 */
@@ -41,7 +42,8 @@ Element.Methods = {
 	 * 显示元素
 	 * 
 	 * @author from Prototype1.6
-	 * @method Element.show
+	 * @class Element.Methods
+	 * @method show
 	 * @param {HTMLElement} html元素
 	 * @return {HTMLElement} html元素
 	 */
@@ -57,7 +59,8 @@ Element.Methods = {
 	 * 将给定object的方法methodize
 	 * 
 	 * @author nowa
-	 * @method Element.methodizeMethods
+	 * @class Element
+	 * @method methodizeMethods
 	 * @param {Object} object
 	 * @return {Object} object
 	 */
@@ -70,34 +73,35 @@ Element.Methods = {
 		}
 		return _Methods;
 	};
+	
+	/*
+	 * 将Methods添加到element实例，仅针对不支持element.__proto__特性的浏览器
+	 *
+	 * @author based on Prototype1.6
+	 * @class Element
+	 * @method extend
+	 * @param {HTMLElement} html元素
+	 * @return {HTMLElement} html元素
+	 */
+	this.extend = (function() {
+		if (JPlus.BrowserFeatures.SpecificElementExtensions)
+			return JPlus.K;
+
+		var extend = Object.extend(function(element) {
+			if (!element || element._extendedByPrototype || 
+	        element.nodeType != 1 || element == window) return element;
+
+			Object.extend(element, Element.methodizeMethods());
+
+			element._extendedByPrototype = JPlus.emptyFunction;
+	    return element;
+		}, {});
+
+		return extend;
+	})();
 }).call(Element);
 
 Object.extend(Element, Element.Methods);
-
-/*
- * 将Methods添加到element实例，仅针对不支持element.__proto__特性的浏览器
- *
- * @author based on Prototype1.6
- * @method Element.extend
- * @param {HTMLElement} html元素
- * @return {HTMLElement} html元素
- */
-Element.extend = (function() {
-	if (JPlus.BrowserFeatures.SpecificElementExtensions)
-		return JPlus.K;
-	
-	var extend = Object.extend(function(element) {
-		if (!element || element._extendedByPrototype || 
-        element.nodeType != 1 || element == window) return element;
-				
-		Object.extend(element, Element.methodizeMethods());
-		
-		element._extendedByPrototype = JPlus.emptyFunction;
-    return element;
-	}, {});
-	
-	return extend;
-})();
 
 // 判断浏览器是否是支持element.__proto__而不支持window.HTMLElement，如果是，则构造一个window.HTMLElement作为element.__proto__的原型父链
 if (!JPlus.BrowserFeatures.ElementExtensions && 

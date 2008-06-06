@@ -3,5 +3,6 @@
 var JPlus = {
 	Version: '<%= JPLUS_VERSION %>',
 	
-	emptyFunction: function() { }
+	emptyFunction: function() { },
+	K: function(x) {return x}
 }

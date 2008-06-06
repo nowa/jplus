@@ -22,6 +22,20 @@ Object.extend(Object, {
 	 */
 	isString: function(object) {
 	  return typeof object == "string";
-	}
+	},
 	
+	isFunction: function(object) {
+    return typeof object == "function";
+  }
+	
+});
+
+Object.extend(Function.prototype, {
+	methodize: function() {
+    if (this._methodized) return this._methodized;
+    var __method = this;
+    return this._methodized = function() {
+      return __method.apply(null, [this].concat($A(arguments)));
+    };
+  }
 });

@@ -22,7 +22,7 @@ JPlus.BrowserFeatures = {
 	// element构造对象，一旦修改了HTMLElement的prototype将影响到所有的element
   ElementExtensions: !!window.HTMLElement,
 
-	// element的原型父链，针对特定element做扩展
+	// element的原型父链，指向window.Element，针对特定element做扩展
   SpecificElementExtensions: 
     document.createElement('div')['__proto__'] &&
     document.createElement('div')['__proto__'] !== 

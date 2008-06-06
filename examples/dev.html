@@ -10,14 +10,25 @@
 	<script src="../src/core/jplus.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/core/browser.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/core/base.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../src/native/array.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/dom/dom.js" type="text/javascript" charset="utf-8"></script>
-	
+	<style type="text/css" media="screen">
+		#foo{display:none;}
+	</style>
 	<!-- Date: 2008-06-03 -->
 </head>
 <body>
 	
+	<div id="foo">
+		this is foo.
+	</div>
+	
+	<input type="button" name="some_name" value="show foo" id="some_name" onclick="showfoo();" />
+	
 	<script type="text/javascript" charset="utf-8">
-		alert(window.HTMLElement);
+		function showfoo () {
+			$('foo').show();
+		}
 	</script>
 
 </body>

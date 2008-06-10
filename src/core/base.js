@@ -21,6 +21,26 @@ Object.extend = function(destination, source) {
 Object.extend(Object, {
 	
 	/**
+	 * 输出对象以便查看
+	 *
+	 * @author from Prototype1.6
+	 * @class Object
+	 * @method inspect
+	 * @param {Object} object
+	 * @return {Bool} String
+	 */
+	inspect: function(object) {
+    try {
+      if (Object.isUndefined(object)) return 'undefined';
+      if (object === null) return 'null';
+      return object.inspect ? object.inspect() : String(object);
+    } catch (e) {
+      if (e instanceof RangeError) return '...';
+      throw e;
+    }
+  },
+
+	/**
 	 * 检查对象是否是String
 	 *
 	 * @author from Prototype1.6
@@ -44,6 +64,19 @@ Object.extend(Object, {
 	 */
 	isFunction: function(object) {
     return typeof object == "function";
+  },
+
+	/**
+	 * 检查对象是否是Undefined
+	 *
+	 * @author from Prototype1.6
+	 * @class Object
+	 * @method isUndefined
+	 * @param {Object} object
+	 * @return {Bool} true or false
+	 */
+	isUndefined: function(object) {
+    return typeof object == "undefined";
   }
 	
 });

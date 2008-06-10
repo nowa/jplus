@@ -87,6 +87,27 @@ var Enumerable = {
 	},
 	
 	/**
+	 * 精确比较并返回匹配值
+	 *
+	 * @author from Prototype1.6
+	 * @class Enumerable
+	 * @method detect
+	 * @param {Function:iterator} 迭代器
+	 * @param {Object:context} 迭代器的上下文对象
+	 * @return {Object} 匹配的元素
+	 */
+	detect: function(iterator, context) {
+    var result;
+    this.each(function(value, index) {
+      if (iterator.call(context, value, index)) {
+        result = value;
+        throw $break;
+      }
+    });
+    return result;
+  },
+	
+	/**
 	 * 返回数组里匹配迭代器条件的数组项
 	 *
 	 * @author from Prototype1.6

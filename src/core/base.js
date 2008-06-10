@@ -40,6 +40,10 @@ Object.extend(Object, {
     }
   },
 
+	toJSON: function(object) {
+		
+	},
+
 	/**
 	 * 检查对象是否是String
 	 *

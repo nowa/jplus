@@ -19,7 +19,7 @@ function $A(iterable) {
 }
 
 // 针对webkit做特别处理
-if (Prototype.Browser.WebKit) {
+if (JPlus.Browser.WebKit) {
   $A = function(iterable) {
     if (!iterable) return [];
     if (!(Object.isFunction(iterable) && iterable == '[object NodeList]') &&
@@ -138,3 +138,8 @@ Object.extend(Array.prototype, {
 	}
 	
 });
+
+// use native browser JS 1.6 implementation if available
+if (Object.isFunction(Array.prototype.forEach))
+  Array.prototype._each = Array.prototype.forEach;
+

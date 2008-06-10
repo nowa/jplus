@@ -62,7 +62,7 @@ var Enumerable = {
 		iterator = iterator || JPlus.K;
 		var result = false;
 		this.each(function(value, index) {
-			if (result = !!iterator.call(context, value, index))) throw $break;
+			if (result = !!iterator.call(context, value, index)) throw $break;
 		});
 		return result;
 	},

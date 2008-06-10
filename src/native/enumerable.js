@@ -2,7 +2,7 @@
  * 对enumerable对象具有普适意义的扩展
  */
 
-var $break = { };
+var $break = {};
 
 var Enumerable = {
 	
@@ -39,7 +39,7 @@ var Enumerable = {
 	 * @return {BOOL} true or false
 	 */
 	all: function(iterator, context) {
-		iterator = iterator || JPlus.K;
+		iterator = iterator || JPlus.K;		// 迭代器可以不指定，默认采用empty function
 		var result = true;
 		this.each(function(value, index) {
 			result = result && !!iterator.call(context, value, index);
@@ -127,6 +127,162 @@ var Enumerable = {
 				results.push(iterator.call(context, value, index));
 		});
 		return results;
-	}
+	},
 	
-}
+	/**
+	 * 判断给定参数是否在数组里
+	 *
+	 * @author from Prototype
+	 * @class Enumerable
+	 * @method include
+	 * @param {Object:object} 被检查对象
+	 * @return {BOOL} true or false
+	 */
+	include: function(object) {
+		var result = false;
+		this.each(function(value) {
+			if (value == object) {
+				result = true;
+				throw $break;
+			}
+		});
+		return result;
+	},
+	
+	/**
+	 * 迭代调用数组项的某个方法
+	 *
+	 * @author from Prototype1.6
+	 * @class Enumerable
+	 * @method invoke
+	 * @param {String:method} 方法名
+	 * @return {Array} 返回各个数组项执行方法后返回的结果集
+	 */
+	invoke: function(method) {
+		var args = $A(arguments).slice(1);
+		return this.map(function(value) {
+			return value[method].apply(value, args);
+		});
+	},
+	
+	/**
+	 * 返回数组迭代后最大值项
+	 *
+	 * @author from Prototype1.6
+	 * @class Enumerable
+	 * @method max
+	 * @param {Function:iterator} 迭代器
+	 * @param {Object:context} 迭代器的上下文对象
+	 * @return {Object} 最大值
+	 */
+	max: function(iterator, context) {
+		iterator = iterator || JPlus.K;
+		var result;
+		this.each(function(value, index) {
+			value = iterator.call(context, value, index);
+			if (result == null || value > result) result = value;
+		});
+		return result;
+	},
+	
+	/**
+	 * 返回数组迭代后最小值项
+	 *
+	 * @author from Prototype1.6
+	 * @class Enumerable
+	 * @method min
+	 * @param {Function:iterator} 迭代器
+	 * @param {Object:context} 迭代器的上下文对象
+	 * @return {Object} 最小值
+	 */
+	min: function(iterator, context) {
+		iterator = iterator || JPlus.K;
+		var result;
+		this.each(function(value, index) {
+			value = iterator.call(context, value, index);
+			if (result == null || value < result) result = value;
+		});
+		return result;
+	},
+	
+	/**
+	 * 遍历数组返回每个元素的指定属性值集合
+	 *
+	 * @author from Prototype1.6
+	 * @class Enumerable
+	 * @method pluck
+	 * @param {String:property} 属性名
+	 * @return {Array} 属性值集合
+	 */
+	pluck: function(property) {
+		var results = [];
+		this.each(function(value) {
+			results.push(value[property]);
+		});
+		return results;
+	},
+	
+	/**
+	 * 返回数组迭代后最小值项
+	 *
+	 * @author from Prototype1.6
+	 * @class Enumerable
+	 * @method min
+	 * @param {Function:iterator} 迭代器
+	 * @param {Object:context} 迭代器的上下文对象
+	 * @return {Object} 最小值
+	 */
+	sortBy: function(iterator, context) {
+		return this.map(function(value, index) {
+			return {
+				value: value,
+				criteria: iterator.call(context, value, index)
+			};
+		}).sort(function(left, right) {
+			var a = left.criteria, b = right.criteria;
+			return a < b ? -1 : a > b ? 1 : 0;
+		}).pluck('value');
+	},
+	
+	/**
+	 * 可遍历集合转换成数组
+	 *
+	 * @author from Prototype1.6
+	 * @class Enumerable
+	 * @method toArray
+	 * @return {Array} array
+	 */
+	toArray: function() {
+    return this.map();
+  },
+
+	/**
+	 * 对象的长度
+	 *
+	 * @author from Prototype1.6
+	 * @class Enumerable
+	 * @method size
+	 * @return {integer} 整数
+	 */
+	size: function() {
+    return this.toArray().length;
+  },
+
+	/**
+	 * 查看对象，类似于toString
+	 *
+	 * @author from Prototype1.6
+	 * @class Enumerable
+	 * @method inspect
+	 * @return {String} string
+	 */
+	inspect: function() {
+    return '#<Enumerable:' + this.toArray().inspect() + '>';
+  }
+	
+};
+
+// 方法名映射
+Object.extend(Enumerable, {
+	map: Enumerable.collect
+});

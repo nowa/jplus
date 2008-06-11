@@ -27,12 +27,19 @@
 	
 	<input type="button" name="some_name" value="show foo" id="some_name" onclick="showfoo();" />
 	
+	<br/>
+	<div id="bar">
+		
+	</div>
+	
 	<script type="text/javascript" charset="utf-8">
 		function showfoo () {
 			$('foo').show();
 		}
 		
-		// alert(" i am nowa ".split(/\s+/, 2).first());
+		$('bar').innerHTML = 'i am nowa'.gsub('a', function(match) {return match[0].toUpperCase()});
+		var a = 'abc';
+		alert(a[1]);
 	</script>
 
 </body>

@@ -1,6 +1,10 @@
-/**
- * 对Array的扩展，以及相关方法
- */
+// 
+//  对Array的扩展，以及相关方法
+//  JPlus -> array.js
+//  
+//  Created by nowa on 2008-06-12.
+//  Copyright 2008 jplus.welost.us. All rights reserved.
+// 
 
 /**
  * 将可以枚举的对象转化为Array
@@ -41,7 +45,7 @@ Object.extend(Array.prototype, {
 	_each: function(iterator) {
 		for (var i=0, length=this.length; i < length; i++) {
 			iterator(this[i]);
-		};
+		}
 	},
 	
 	/**
@@ -138,8 +142,3 @@ Object.extend(Array.prototype, {
 	}
 	
 });
-
-// use native browser JS 1.6 implementation if available
-if (Object.isFunction(Array.prototype.forEach))
-  Array.prototype._each = Array.prototype.forEach;
-

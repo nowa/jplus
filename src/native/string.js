@@ -1,6 +1,24 @@
-/**
- * 对String的扩展，以及相关方法
- */
+// 
+//  对String的扩展，以及相关方法
+//  JPlus -> string.js
+//  
+//  Created by nowa on 2008-06-12.
+//  Copyright 2008 jplus.welost.us. All rights reserved.
+// 
+
+Object.extend(String, {
+  interpret: function(value) {
+    return value == null ? '' : String(value);
+  },
+  specialChar: {
+    '\b': '\\b',
+    '\t': '\\t',
+    '\n': '\\n',
+    '\f': '\\f',
+    '\r': '\\r',
+    '\\': '\\\\'
+  }
+});
 
 /**
  * 使用_split代替原有的split方法，原split将会在下面被重定义掉
@@ -46,7 +64,7 @@ Object.extend(String.prototype, {
 	/**
 	 * replace方法的增强版本，除了replace的功能外，replacement还可以是一个函数，其默认被传递了参数match
 	 *
-	 * @author based on Prototype1.6->String.prototype.gsub
+	 * @author based on Prototype1.6
 	 * @class String
 	 * @method gsub
 	 * @param {(String|RegExp):pattern} 要被替换掉的字符串或者正则表达式对象
@@ -60,7 +78,7 @@ Object.extend(String.prototype, {
 		while (source.length > 0) {
 			if (match = source.match(pattern)) {
 				result += source.slice(0, match.index);
-				result += _replacement(match);
+				result += String.interpret(_replacement(match));
 				source = source.slice(match.index + match[0].length);
 			} else {
 				result += source; source = '';
@@ -68,6 +86,70 @@ Object.extend(String.prototype, {
 		}
 		
 		return result;
+	},
+	
+	/**
+	 * 类似于gsub，但是默认只替换一处，使用count可以指定替换的个数
+	 *
+	 * @author based on Prototype1.6
+	 * @class String
+	 * @method sub
+	 * @param {(String|RegExp):pattern} 要被替换掉的字符串或者正则表达式对象
+	 * @param {(String|Function):replacement} 替换后的字符串
+	 * @param {Integer:count} 替换的个数
+	 * @return {String} string
+	 */
+	sub: function(pattern, replacement, count) {
+		var _replacement = Object.isFunction(replacement) ? replacement : this.gsub._replacement(replacement);
+		count = count || 1;
+		
+		return this.gsub(pattern, function(match) {
+			if (--count < 0) return match[0];
+			return _replacement(match);
+		});
+	},
+	
+	/**
+	 * 重复自身count次
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method repeat
+	 * @param {Integer:count} 重复的次数
+	 * @return {String} string
+	 */
+	repeat: function(count) {
+		return count < 1 ? '' : new Array(count + 1).join(this);
+	},
+	
+	/**
+	 * 输出字符串以查看，控制字符将被转义
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method inspect
+	 * @param {Boolean:useDoubleQuotes} 是否使用双引号输出，默认使用单引号
+	 * @return {String} string
+	 */
+	inspect: function(useDoubleQuotes) {
+		var escapedString = this.gsub(/\x00-\x1f\\/, function(match) {
+			var character = String.specialChar[match[0]];
+			return character ? character : '\\u00' + match[0].charCodeAt().toPaddedString(2, 16);
+		});
+		if (useDoubleQuotes) return '"' + escapedString.replace(/"/g, '\\"') + '"';
+		return "'" + escapedString.replace(/'/g, "\\'") + "'";
+	},
+	
+	/**
+	 * 转换成JSON字串
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method toJSON
+	 * @return {String} json string
+	 */
+	toJSON: function() {
+		return this.inspect(true);
 	}
 	
 });
@@ -84,3 +166,8 @@ Object.extend(String.prototype, {
 String.prototype.gsub._replacement = function(replacement) {
 	return function(match) {return replacement};
 };
+
+// 方法映射
+Object.extend(String.prototype, {
+	times: String.prototype.repeat
+});

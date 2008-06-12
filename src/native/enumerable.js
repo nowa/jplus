@@ -1,6 +1,10 @@
-/**
- * 对enumerable对象具有普适意义的扩展
- */
+// 
+//  对enumerable对象具有普适意义的扩展
+//  JPlus -> enumerable.js
+//  
+//  Created by nowa on 2008-06-12.
+//  Copyright 2008 jplus.welost.us. All rights reserved.
+// 
 
 var $break = {};
 

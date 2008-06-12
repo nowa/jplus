@@ -1,6 +1,10 @@
-/**
- * 浏览器相关
- */
+// 
+//  浏览器相关
+//  JPlus -> browser.js
+//  
+//  Created by nowa on 2008-06-12.
+//  Copyright 2008 jplus.welost.us. All rights reserved.
+// 
 
 // from prototype 1.6
 // 浏览器识别

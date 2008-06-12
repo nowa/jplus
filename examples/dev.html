@@ -13,6 +13,7 @@
 	<script src="../src/native/string.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/enumerable.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/array.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../src/native/number.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/dom/dom.js" type="text/javascript" charset="utf-8"></script>
 	<style type="text/css" media="screen">
 		#foo{display:none;}
@@ -38,8 +39,8 @@
 		}
 		
 		$('bar').innerHTML = 'i am nowa'.gsub('a', function(match) {return match[0].toUpperCase()});
-		var a = 'abc';
-		alert(a[1]);
+		
+		(3).times(function() {alert(this.innerHTML)}, $('foo'));
 	</script>
 
 </body>

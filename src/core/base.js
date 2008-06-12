@@ -1,6 +1,10 @@
-/**
- * 基础方法及类库
- */
+// 
+//  基础方法及类库
+//  JPlus -> base.js
+//  
+//  Created by nowa on 2008-06-11.
+//  Copyright 2008 jplus.welost.us. All rights reserved.
+// 
 
 /**
  * 为Object对象添加继承方法
@@ -40,8 +44,33 @@ Object.extend(Object, {
     }
   },
 
+	/**
+	 * 通用的对未知类型对象的toJSON方法
+	 *
+	 * @author from Prototype1.6
+	 * @class Object
+	 * @method toJSON
+	 * @param {Object} object
+	 * @return {String} json string
+	 */
 	toJSON: function(object) {
+		var type = typeof object;
+		switch (type) {
+			case "unknown": return;
+			case "boolean": return object.toString();
+		}
 		
+		if (object == null) return 'null';
+		if (Object.isElement(object)) return;
+		if (Object.isFunction(object.toJSON)) return object.toJSON();
+		
+		var results = [];
+		for (var property in object) {
+			var value = Object.toJSON(object[property]);
+			if (!Object.isUndefined(value)) results.push(property.toJSON() + ': ' + value);
+		}
+		
+		return '{' + results.join(', ') + '}';
 	},
 
 	/**
@@ -68,6 +97,19 @@ Object.extend(Object, {
 	 */
 	isFunction: function(object) {
     return typeof object == "function";
+  },
+
+	/**
+	 * 检查对象是否是Element
+	 *
+	 * @author from Prototype1.6
+	 * @class Object
+	 * @method isElement
+	 * @param {Object} object
+	 * @return {Bool} true or false
+	 */
+	isElement: function(object) {
+    return object && object.nodeType == 1;
   },
 
 	/**

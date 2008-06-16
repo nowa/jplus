@@ -248,6 +248,24 @@ var Enumerable = {
 	},
 	
 	/**
+	 * 返回迭代增量值memo
+	 *
+	 * @author from Prototype1.6
+	 * @class Enumerable
+	 * @method inject
+	 * @param {Object:memo} 增量
+	 * @param {Function:iterator} 迭代器
+	 * @param {Object:context} 迭代器的上下文对象
+	 * @return {Object} 迭代后的增量
+	 */
+	inject: function(memo, iterator, context) {
+		this.each(function(value, index) {
+      memo = iterator.call(context, memo, value, index);
+    });
+    return memo;
+	},
+	
+	/**
 	 * 返回数组迭代后最小值项
 	 *
 	 * @author from Prototype1.6

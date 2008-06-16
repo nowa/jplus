@@ -22,7 +22,15 @@ function $(element) {
 }
 
 // element constructor
-var Element = window.Element || {};
+var Element = window.Element || function(tagName, attributes) {
+	attributes = attributes || {};
+	tagName = tagName.toLowerCase();
+	var _element = Element.extend(document.createElement(tagName));
+	for (var attr in attributes) {
+		_element.setAttribute(attr, attributes[attr]);
+	}
+	return _element;
+};
 
 Element.Methods = {
 	/*

@@ -3,7 +3,7 @@
 //  JPlus -> number.js
 //  
 //  Created by nowa on 2008-06-12.
-//  Copyright 2008 jplus.welost.us. All rights reserved.
+//  Copyright 2008 jplus.nowazhu.com. All rights reserved.
 // 
 
 Object.extend(Number.prototype, {

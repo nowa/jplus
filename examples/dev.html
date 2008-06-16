@@ -30,7 +30,12 @@
 	
 	<br/>
 	<div id="bar">
-		
+		<div id="name">
+			<input type="button" name="some_name" value="show foo2" id="some_name2" onclick="showfoo();" />
+		</div>
+		<div id="foo2">
+			this is foo.
+		</div>
 	</div>
 	
 	<script type="text/javascript" charset="utf-8">
@@ -38,9 +43,21 @@
 			$('foo').show();
 		}
 		
-		$('bar').innerHTML = 'i am nowa'.gsub('a', function(match) {return match[0].toUpperCase()});
+		// $('bar').innerHTML = 'i am nowa'.gsub('a', function(match) {return match[0].toUpperCase()});
 		
-		(3).times(function() {alert(this.innerHTML)}, $('foo'));
+		// (3).times(function() {alert(this.innerHTML)}, $('foo'));
+		
+		// alert('i am nowa'.include('no'));
+		
+		var d = Element('div');
+		// var t = document.createTextNode('');
+		
+		// d.appendChild(t);
+		// t.data = $('bar').innerHTML;
+		
+		d.innerHTML = "<div class='asasas'>"+$('bar').innerHTML.escapeHTML()+"</div><div class='rtrtg'>asassa</div";
+		alert(d.childNodes.length);
+		$('bar').innerHTML = d.childNodes[0].nodeValue;
 	</script>
 
 </body>

@@ -3,13 +3,14 @@
 //  JPlus -> string.js
 //  
 //  Created by nowa on 2008-06-12.
-//  Copyright 2008 jplus.welost.us. All rights reserved.
+//  Copyright 2008 jplus.nowazhu.com. All rights reserved.
 // 
 
 Object.extend(String, {
   interpret: function(value) {
     return value == null ? '' : String(value);
   },
+
   specialChar: {
     '\b': '\\b',
     '\t': '\\t',
@@ -17,7 +18,11 @@ Object.extend(String, {
     '\f': '\\f',
     '\r': '\\r',
     '\\': '\\\\'
-  }
+  },
+
+	patterns: {
+		script: '<script[^>]*>([\\S\\s]*?)<\/script>'
+	}
 });
 
 /**
@@ -122,6 +127,30 @@ Object.extend(String.prototype, {
 		return count < 1 ? '' : new Array(count + 1).join(this);
 	},
 	
+	include: function(pattern) {
+		return this.indexOf(pattern) > -1;
+	},
+	
+	cut: function(length, tail) {
+		length = length || 30;
+		tail = tail ? tail : '...';
+		return this.length > length ? this.slice(0, length - tail.length) : String(this);
+	},
+	
+	stripScripts: function() {
+		return this.replace(new RegExp(String.patterns.script, 'img'), '');
+	},
+	
+	escapeHTML: function() {
+		var self = arguments.callee;
+		self.text.data = this;
+		return self.div.innerHTML;
+	},
+	
+	unescapeHTML: function() {
+		
+	},
+	
 	/**
 	 * 输出字符串以查看，控制字符将被转义
 	 *
@@ -166,6 +195,13 @@ Object.extend(String.prototype, {
 String.prototype.gsub._replacement = function(replacement) {
 	return function(match) {return replacement};
 };
+
+Object.extend(String.prototype.escapeHTML, {
+  div:  document.createElement('div'),
+  text: document.createTextNode('')
+});
+
+String.prototype.escapeHTML.div.appendChild(String.prototype.escapeHTML.text);
 
 // 方法映射
 Object.extend(String.prototype, {

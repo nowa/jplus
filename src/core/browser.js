@@ -32,3 +32,6 @@ JPlus.BrowserFeatures = {
     document.createElement('div')['__proto__'] !== 
       document.createElement('form')['__proto__']
 }
+
+if (JPlus.Browser.MobileSafari)
+  JPlus.BrowserFeatures.SpecificElementExtensions = false;

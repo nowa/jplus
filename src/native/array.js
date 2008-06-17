@@ -142,3 +142,11 @@ Object.extend(Array.prototype, {
 	}
 	
 });
+
+Array.prototype.toArray = Array.prototype.clone;
+
+function $w(string) {
+  if (!Object.isString(string)) return [];
+  string = string.strip();
+  return string ? string.split(/\s+/) : [];
+}

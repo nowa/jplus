@@ -49,15 +49,18 @@
 		
 		// alert('i am nowa'.include('no'));
 		
-		var d = Element('div');
+		// var d = Element('div');
 		// var t = document.createTextNode('');
 		
 		// d.appendChild(t);
 		// t.data = $('bar').innerHTML;
 		
-		d.innerHTML = "<div class='asasas'>"+$('bar').innerHTML.escapeHTML()+"</div><div class='rtrtg'>asassa</div";
-		alert(d.childNodes.length);
-		$('bar').innerHTML = d.childNodes[0].nodeValue;
+		// d.innerHTML = "<div class='asasas'>"+$('bar').innerHTML.escapeHTML()+"</div><div class='rtrtg'>asassa</div";
+		// $('bar').innerHTML = d.childNodes[0].nodeValue;
+		// alert($('bar').innerHTML.escapeHTML().unescapeHTML());
+		
+		var s = "i am nowa";
+		alert(s.replace(/(\s+a).(\s+n)/, '$1'));
 	</script>
 
 </body>

@@ -21,7 +21,8 @@ Object.extend(String, {
   },
 
 	patterns: {
-		script: '<script[^>]*>([\\S\\s]*?)<\/script>'
+		script: '<script[^>]*>([\\S\\s]*?)<\/script>', 
+		jsonFilter: /^\/\*-secure-([\s\S]*)\*\/\s*$/
 	}
 });
 
@@ -137,6 +138,10 @@ Object.extend(String.prototype, {
 		return this.length > length ? this.slice(0, length - tail.length) : String(this);
 	},
 	
+	stripTags: function() {
+		return this.replace(/<\/?[^>]+>/ig, '');
+	},
+	
 	stripScripts: function() {
 		return this.replace(new RegExp(String.patterns.script, 'img'), '');
 	},
@@ -148,8 +153,19 @@ Object.extend(String.prototype, {
 	},
 	
 	unescapeHTML: function() {
-		
+		var d = Element('div');
+		d.innerHTML = String(this);
+		return d.childNodes[0] ? d.childNodes.length > 1 ? 
+			$A(d.childNodes).inject('', function(memo, node) { return memo + node.nodeValue }) : d.childNodes[0].nodeValue : '';
 	},
+	
+	toArray: function() {
+		return this.split('');
+	},
+	
+	blank: function() {
+    return /^\s*$/.test(this);
+  },
 	
 	/**
 	 * 输出字符串以查看，控制字符将被转义
@@ -179,7 +195,26 @@ Object.extend(String.prototype, {
 	 */
 	toJSON: function() {
 		return this.inspect(true);
-	}
+	},
+	
+	unfilterJSON: function(filter) {
+    return this.replace(filter || String.patterns.jsonFilter, '$1');
+  },
+
+  isJSON: function() {
+    var str = this;
+    if (str.blank()) return false;
+    str = this.replace(/\\./g, '@').replace(/"[^"\\\n\r]*"/g, '');
+    return (/^[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]*$/).test(str);
+  },
+  
+  evalJSON: function(sanitize) {
+    var json = this.unfilterJSON();
+    try {
+      if (!sanitize || json.isJSON()) return eval('(' + json + ')');
+    } catch (e) { }
+    throw new SyntaxError('Badly formed JSON string: ' + this.inspect());
+  }
 	
 });
 

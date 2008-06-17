@@ -22,15 +22,20 @@ function $(element) {
 }
 
 // element constructor
-var Element = window.Element || function(tagName, attributes) {
-	attributes = attributes || {};
-	tagName = tagName.toLowerCase();
-	var _element = Element.extend(document.createElement(tagName));
-	for (var attr in attributes) {
-		_element.setAttribute(attr, attributes[attr]);
+(function() {
+	var element = this.Element;
+	this.Element = function(tagName, attributes) {
+		attributes = attributes || {};
+		tagName = tagName.toLowerCase();
+		var _element = Element.extend(document.createElement(tagName));
+		for (var attr in attributes) {
+			_element.setAttribute(attr, attributes[attr]);
+		}
+		return _element;
 	}
-	return _element;
-};
+	Object.extend(this.Element, element || {});
+	if (element) this.Element.prototype = element.prototype;
+}).call(window);
 
 Element.Methods = {
 	/*

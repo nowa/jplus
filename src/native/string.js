@@ -311,6 +311,17 @@ Object.extend(String.prototype, {
 	
 });
 
+// IE如果使用element来做转义会产生不标准的代码，所以单独定义
+if (JPlus.Browser.IE) Object.extend(String.prototype, {
+	escapeHTML: function() {
+		return this.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+	},
+	
+	unescapeHTML: function() {
+		return this.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+	}
+});
+
 /**
  * gsub的子方法，之所以独立出来是为了方便在其他类里重载
  *

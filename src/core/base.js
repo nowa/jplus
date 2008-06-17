@@ -6,6 +6,46 @@
 //  Copyright 2008 jplus.nowazhu.com. All rights reserved.
 // 
 
+var Class = {
+	create = function() {
+		var parent = null, properites = $A(arguments);
+		if (Object.isFunction(properites[0])) parent = properites.shift();
+		
+		function klass () {
+			this.initialize.apply(this, arguments);
+		}
+		
+		Object.extend(klass, Class.Methods);
+		klass.superclass = parent;
+		klass.subclasses = [];
+		
+		if (parent) {
+			var subclass = function() {};
+			subclass.prototype = parent.prototype;
+			klass.prototype = new subclass;
+			parent.subclasses.push(klass);
+		}
+		
+		for (var i = 0; i < properties.length; i++)
+      klass.addMethods(properties[i]);
+
+		if (!klass.prototype.initialize)
+      klass.prototype.initialize = JPlus.emptyFunction;
+
+		klass.prototype.constructor = klass;
+		return klass;
+	}
+};
+
+Class.Methods = {
+	addMethods: function(source) {
+		var ancestor   = this.superclass && this.superclass.prototype;
+    var properties = Object.keys(source);
+
+		
+	}
+};
+
 /**
  * 为Object对象添加继承方法
  *

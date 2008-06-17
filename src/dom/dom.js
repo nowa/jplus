@@ -58,10 +58,11 @@ Element.Methods = {
 	 * @class Element.Methods
 	 * @method show
 	 * @param {HTMLElement} html元素
+	 * @param {String:d} block or inline or others
 	 * @return {HTMLElement} html元素
 	 */
-	show : function(element) {
-		$(element).style.display = 'block';
+	show : function(element, d) {
+		$(element).style.display = d ? d : '';
     return element;
 	}
 };

@@ -128,30 +128,81 @@ Object.extend(String.prototype, {
 		return count < 1 ? '' : new Array(count + 1).join(this);
 	},
 	
+	/**
+	 * 指定的字符串是否在自身中存在
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method include
+	 * @param {String:pattern} 指定的字符串
+	 * @return {Boolean} true or false
+	 */
 	include: function(pattern) {
 		return this.indexOf(pattern) > -1;
 	},
 	
+	/**
+	 * 截取字符串
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method cut
+	 * @param {Integer:length} 截断后的长度，这个长度是包含了tail的
+	 * @param {String:tail} 尾部结束字符
+	 * @return {String} string
+	 */
 	cut: function(length, tail) {
 		length = length || 30;
 		tail = tail ? tail : '...';
 		return this.length > length ? this.slice(0, length - tail.length) : String(this);
 	},
 	
+	/**
+	 * 将html tag从字符串里移除
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method stripTags
+	 * @return {String} string
+	 */
 	stripTags: function() {
 		return this.replace(/<\/?[^>]+>/ig, '');
 	},
 	
+	/**
+	 * 将script标签从字符串里移除
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method stripScripts
+	 * @return {String} string
+	 */
 	stripScripts: function() {
 		return this.replace(new RegExp(String.patterns.script, 'img'), '');
 	},
 	
+	/**
+	 * 转义字符串里html tag
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method escapeHTML
+	 * @return {String} string
+	 */
 	escapeHTML: function() {
 		var self = arguments.callee;
 		self.text.data = this;
 		return self.div.innerHTML;
 	},
 	
+	/**
+	 * 使被转义的html tag恢复
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method unescapeHTML
+	 * @return {String} string
+	 */
 	unescapeHTML: function() {
 		var d = Element('div');
 		d.innerHTML = String(this);
@@ -159,10 +210,26 @@ Object.extend(String.prototype, {
 			$A(d.childNodes).inject('', function(memo, node) { return memo + node.nodeValue }) : d.childNodes[0].nodeValue : '';
 	},
 	
+	/**
+	 * 字符串转化成字符数组
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method toArray
+	 * @return {Array} string array
+	 */
 	toArray: function() {
 		return this.split('');
 	},
 	
+	/**
+	 * 字符串是否使空白的，即由空白字符组成的
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method blank
+	 * @return {String} string
+	 */
 	blank: function() {
     return /^\s*$/.test(this);
   },
@@ -197,10 +264,27 @@ Object.extend(String.prototype, {
 		return this.inspect(true);
 	},
 	
+	/**
+	 * 根据指定的filter替换JSON字符串
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method unfilterJSON
+	 * @param {RegExp:filter} 正则表达式对象
+	 * @return {String} string
+	 */
 	unfilterJSON: function(filter) {
     return this.replace(filter || String.patterns.jsonFilter, '$1');
   },
 
+	/**
+	 * 判断是不是有效的JSON字符串
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method isJSON
+	 * @return {String} string
+	 */
   isJSON: function() {
     var str = this;
     if (str.blank()) return false;
@@ -208,6 +292,15 @@ Object.extend(String.prototype, {
     return (/^[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]*$/).test(str);
   },
   
+	/**
+	 * 执行JSON字符串，使之成为可用的JSON Object
+	 *
+	 * @author from prototype1.6
+	 * @class String
+	 * @method repeat
+	 * @param {Integer:count} 重复的次数
+	 * @return {String} string
+	 */
   evalJSON: function(sanitize) {
     var json = this.unfilterJSON();
     try {

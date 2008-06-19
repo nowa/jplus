@@ -56,7 +56,29 @@
 		
 		// d.innerHTML = "<div class='asasas'>"+$('bar').innerHTML.escapeHTML()+"</div><div class='rtrtg'>asassa</div";
 		// $('bar').innerHTML = d.childNodes[0].nodeValue;
-		alert($('bar').innerHTML.escapeHTML().unescapeHTML());
+		// alert($('bar').innerHTML.escapeHTML().unescapeHTML());
+		// alert(Object.keys({ toString: true }).length);
+		
+		var a = Class.create({
+			initialize: function(name, age) {
+				this.name = 'name';
+				this.age = age;
+			},
+			
+			check: function() {
+				alert($A(arguments).inspect());
+			}
+		});
+		
+		var b = Class.create(a, {
+			check: function($super, dd) {
+				this.name = 'nowa';
+				$super(dd);
+			}
+		});
+		
+		var c = new b('fish', 24);
+		c.check('oh');
 	</script>
 
 </body>

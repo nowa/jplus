@@ -7,9 +7,9 @@
 // 
 
 var Class = {
-	create = function() {
-		var parent = null, properites = $A(arguments);
-		if (Object.isFunction(properites[0])) parent = properites.shift();
+	create : function() {
+		var parent = null, properties = $A(arguments);
+		if (Object.isFunction(properties[0])) parent = properties.shift();
 		
 		function klass () {
 			this.initialize.apply(this, arguments);
@@ -22,7 +22,7 @@ var Class = {
 		if (parent) {
 			var subclass = function() {};
 			subclass.prototype = parent.prototype;
-			klass.prototype = new subclass;
+			klass.prototype = new subclass;		// 仅仅需要从parent继承原型对象，parent构造函数里定义的实例属性 并不需要，所以使用了subclass
 			parent.subclasses.push(klass);
 		}
 		
@@ -39,10 +39,28 @@ var Class = {
 
 Class.Methods = {
 	addMethods: function(source) {
-		var ancestor   = this.superclass && this.superclass.prototype;
+		var ancestor   = this.superclass && this.superclass.prototype;		// 如果是一个继承
     var properties = Object.keys(source);
 
+		if (!Object.keys({ toString: true }).length)
+      properties.push("toString", "valueOf");
+
+		for (var i = 0, length = properties.length; i < length; i++) {
+			var property = properties[i], value = source[property];
+			// 支持$super父类同名方法调用
+			if (ancestor && Object.isFunction(value) &&
+          value.argumentNames().first() == "$super") {
+        var method = value, value = Object.extend((function(m) { 
+          return function() { return ancestor[m].apply(this, arguments) };
+        })(property).wrap(method), {
+          valueOf:  function() { return method },
+          toString: function() { return method.toString() }  
+        });
+      }
+      this.prototype[property] = value;
+		}
 		
+		return this;
 	}
 };
 
@@ -63,6 +81,13 @@ Object.extend = function(destination, source) {
 
 // 向Object添加自定义方法
 Object.extend(Object, {
+	
+	keys: function(object) {
+    var keys = [];
+    for (var property in object)
+      keys.push(property);
+    return keys;
+  },
 	
 	/**
 	 * 输出对象以便查看
@@ -168,6 +193,27 @@ Object.extend(Object, {
 });
 
 Object.extend(Function.prototype, {
+	
+	argumentNames: function() {
+    var names = this.toString().match(/^[\s\(]*function[^(]*\(([^\)]*)\)/)[1]
+      .replace(/\s+/g, '').split(',');
+    return names.length == 1 && !names[0] ? [] : names;
+  },
+
+	bind: function() {
+    if (arguments.length < 2 && Object.isUndefined(arguments[0])) return this;
+    var __method = this, args = $A(arguments), object = args.shift();
+    return function() {
+      return __method.apply(object, args.concat($A(arguments)));
+    }
+  },
+
+	wrap: function(wrapper) {
+    var __method = this;
+    return function() {
+      return wrapper.apply(this, [__method.bind(this)].concat($A(arguments))); 
+    }
+  },
 	
 	/**
 	 * 将方法methodize，对象作为第一个参数传递

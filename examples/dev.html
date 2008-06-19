@@ -59,26 +59,31 @@
 		// alert($('bar').innerHTML.escapeHTML().unescapeHTML());
 		// alert(Object.keys({ toString: true }).length);
 		
-		var a = Class.create({
-			initialize: function(name, age) {
-				this.name = 'name';
-				this.age = age;
-			},
-			
-			check: function() {
-				alert($A(arguments).inspect());
-			}
-		});
+		// var a = Class.create({
+		// 			initialize: function(name, age) {
+		// 				this.name = 'name';
+		// 				this.age = age;
+		// 			},
+		// 			
+		// 			check: function() {
+		// 				alert($A(arguments).inspect());
+		// 			}
+		// 		});
+		// 		
+		// 		var b = Class.create(a, {
+		// 			check: function($super, dd) {
+		// 				this.name = 'nowa';
+		// 				$super(dd);
+		// 			}
+		// 		});
+		// 		
+		// 		var c = new b('fish', 24);
+		// 		c.check('oh');
 		
-		var b = Class.create(a, {
-			check: function($super, dd) {
-				this.name = 'nowa';
-				$super(dd);
-			}
-		});
-		
-		var c = new b('fish', 24);
-		c.check('oh');
+		var a = [1, 2, 3];
+		var b = [4, 5, 6];
+		var c = null;
+		alert(c && b);
 	</script>
 
 </body>

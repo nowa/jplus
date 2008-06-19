@@ -97,6 +97,22 @@ Object.extend(Object, {
       keys.push(property);
     return keys;
   },
+
+	/**
+	 * 返回一个数组，其中包含了一个对象中的全部现有的主键的值
+	 *
+	 * @author from Prototype1.6
+	 * @class Object
+	 * @method values
+	 * @param {Object} object
+	 * @return {Array} property value array
+	 */
+	values: function(object) {
+    var values = [];
+    for (var property in object)
+      values.push(object[property]);
+    return values;
+  },
 	
 	/**
 	 * 输出对象以便查看
@@ -146,6 +162,10 @@ Object.extend(Object, {
 		
 		return '{' + results.join(', ') + '}';
 	},
+	
+	clone: function(object) {
+    return Object.extend({ }, object);
+  },
 
 	/**
 	 * 检查对象是否是String
@@ -159,6 +179,19 @@ Object.extend(Object, {
 	isString: function(object) {
 	  return typeof object == "string";
 	},
+	
+	isArray: function(object) {
+    return object != null && typeof object == "object" &&
+      'splice' in object && 'join' in object;
+  },
+	
+	isNumber: function(object) {
+    return typeof object == "number";
+  },
+	
+	isHash: function(object) {
+    return object instanceof Hash;
+  },
 	
 	/**
 	 * 检查对象是否是Function

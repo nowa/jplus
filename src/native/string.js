@@ -23,6 +23,16 @@ Object.extend(String, {
 	patterns: {
 		script: '<script[^>]*>([\\S\\s]*?)<\/script>', 
 		jsonFilter: /^\/\*-secure-([\s\S]*)\*\/\s*$/
+	},
+	
+	weekday: {
+		short: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+		long: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+	},
+	
+	month: {
+		short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+		long: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Aguest', 'September', 'October', 'November', 'December']
 	}
 });
 

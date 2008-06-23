@@ -31,7 +31,9 @@ Event.Methods = {
     var docElement = document.documentElement,
     body = document.body || { scrollLeft: 0, scrollTop: 0 };
     return {
-			x: event.pageX || (event.clientX + (docElement.scrollLeft || body.scrollLeft) - (docElement.clientLeft || 0)),
+			x: event.pageX || (event.clientX +
+				(docElement.scrollLeft || body.scrollLeft) -
+				(docElement.clientLeft || 0)),
 			y: event.pageY || (event.clientY +
         (docElement.scrollTop || body.scrollTop) -
         (docElement.clientTop || 0))

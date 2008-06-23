@@ -274,6 +274,10 @@ Object.extend(String.prototype, {
 		return this.inspect(true);
 	},
 	
+	to_i: function(radix) {
+		return parseInt(this, radix || 10);
+	},
+	
 	/**
 	 * 根据指定的filter替换JSON字符串
 	 *

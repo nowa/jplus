@@ -82,9 +82,13 @@
 		// 		var c = new b('fish', 24);
 		// 		c.check('oh');
 		
-		var d = Date.now();
-		// alert(d.weekday());
-		alert(d.strftime('%Y-%m-%d %H:%M:%S, 60\\%.'));
+		// var d = Date.now();
+		// alert(d.strftime('%Y-%m-%d %H:%M:%S, 60\\%.'));
+		
+		var d = new Date(2001, 5, 28);
+		var c = d.clone();
+		c.setMinutes(80);
+		alert(d.inspect());
 	</script>
 
 </body>

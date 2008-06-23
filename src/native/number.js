@@ -8,6 +8,42 @@
 
 Object.extend(Number.prototype, {
 	
+	seconds: function(d) {
+		var _d = d ? d : Date.now();
+		_d.setSeconds(_d.second() + this)
+		return _d;
+	},
+	
+	minutes: function(d) {
+		var _d = d ? d : Date.now();
+		_d.setMinutes(_d.minute() + this)
+		return _d;
+	},
+	
+	hours: function(d) {
+		var _d = d ? d : Date.now();
+		_d.setHours(_d.hour() + this)
+		return _d;
+	},
+	
+	days: function(d) {
+		var _d = d ? d : Date.now();
+		_d.setDate(_d.day() + this)
+		return _d;
+	},
+	
+	months: function(d) {
+		var _d = d ? d : Date.now();
+		_d.setMonth(_d.getMonth() + this)
+		return _d;
+	},
+	
+	years: function(d) {
+		var _d = d ? d : Date.now();
+		_d.setFullYear(_d.year() + this)
+		return _d;
+	},
+	
 	/**
 	 * 类ruby语法的迭代
 	 *
@@ -48,6 +84,10 @@ Object.extend(Number.prototype, {
 	 */
 	toJSON: function() {
 		return isFinite(this) ? this.toString() : 'null';
+	},
+	
+	to_day: function() {
+		return this / (1000 * 60 * 60 * 24);
 	}
 	
 });

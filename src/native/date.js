@@ -86,6 +86,24 @@ Object.extend(Date.prototype, {
 			}, this);
 		}
 		return format.gsub('{PER}', '%');
+	},
+	
+	after: function(format, offset) {
+		var _c = this.clone();
+		eval('_c.set' + format + '(_c.get' + format + '() + ' + offset + ')');
+		return _c;
+	},
+	
+	clone: function() {
+		return new Date(this.year(), this.getMonth(), this.day(), this.hour(), this.minute(), this.second(), this.msecond());
+	},
+	
+	inspect: function() {
+		return "'" + this.toString() + "'";
+	},
+	
+	toJSON: function() {
+		return this.inspect();
 	}
 	
 });

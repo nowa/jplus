@@ -268,6 +268,13 @@ Object.extend(Function.prototype, {
     }
   },
 
+	delay: function() {
+		var __method = this, args = $A(arguments), timeout = args.shift() * 1000;
+		return window.setTimeout(function() {
+			return __method.apply(__method, args);
+			}, timeout);
+  },
+
 	/**
 	 * 使用指定的function作为wrapper来包装自身
 	 *

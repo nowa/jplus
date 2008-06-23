@@ -17,6 +17,7 @@
 	<script src="../src/native/hash.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/date.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/dom/dom.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../src/event/event.js" type="text/javascript" charset="utf-8"></script>
 	<style type="text/css" media="screen">
 		#foo{display:none;}
 	</style>
@@ -28,19 +29,20 @@
 		this is foo.
 	</div>
 	
-	<input type="button" name="some_name" value="show foo" id="some_name" onclick="showfoo();" />
+	<input type="button" name="some_name" value="show foo" id="some_name" onclick="showfoo(event);" />
 	
 	<br/>
-	<div id="bar">
+	<div id="bar" onclick="showfoo(event)">
 		<div id="foo">
 			this is foo.
 		</div>
 
-		<input type="button" name="some_name" value="show foo" id="some_name" onclick="showfoo();" />
+		<input type="button" name="some_name" value="show foo" id="some_name" onclick="showfoo(event);" />
 	</div>
 	
 	<script type="text/javascript" charset="utf-8">
-		function showfoo () {
+		function showfoo (event) {
+			Event.extend(event);
 			$('foo').show('block');
 		}
 		
@@ -85,10 +87,10 @@
 		// var d = Date.now();
 		// alert(d.strftime('%Y-%m-%d %H:%M:%S, 60\\%.'));
 		
-		var d = new Date(2001, 5, 28);
-		var c = d.clone();
-		c.setMinutes(80);
-		alert(d.inspect());
+		// var d = new Date(2001, 5, 28);
+		// 		var c = d.clone();
+		// 		c.setMinutes(80);
+		// 		alert(d.inspect());
 	</script>
 
 </body>

@@ -21,6 +21,12 @@
 	<style type="text/css" media="screen">
 		#foo{display:none;}
 	</style>
+	<script type="text/javascript" charset="utf-8">
+		window.onload = function() {
+			alert('loaded');
+		};
+		document.observe('dom:loaded', function() {alert('domready')});
+	</script>
 	<!-- Date: 2008-06-03 -->
 </head>
 <body>
@@ -39,6 +45,10 @@
 
 		<input type="button" name="some_name" value="show foo" id="some_name" onclick="showfoo(event);" />
 	</div>
+	
+	<br/><br/>
+	
+	<img src="http://farm1.static.flickr.com/25/65792910_15c3120980_o.jpg" />
 	
 	<script type="text/javascript" charset="utf-8">
 		function showfoo (event) {

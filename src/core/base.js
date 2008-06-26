@@ -268,6 +268,13 @@ Object.extend(Function.prototype, {
     }
   },
 
+	bindAsEventListener: function() {
+    var __method = this, args = $A(arguments), object = args.shift();
+    return function(event) {
+      return __method.apply(object, [event || window.event].concat(args));
+    }
+  },
+
 	delay: function() {
 		var __method = this, args = $A(arguments), timeout = args.shift() * 1000;
 		return window.setTimeout(function() {

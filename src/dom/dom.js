@@ -100,19 +100,43 @@ Element.Methods = {
 	this.extend = (function() {
 		if (JPlus.BrowserFeatures.SpecificElementExtensions)
 			return JPlus.K;
+			
+		var Methods = { };
 
 		var extend = Object.extend(function(element) {
 			if (!element || element._extendedByPrototype || 
 	        element.nodeType != 1 || element == window) return element;
 
-			Object.extend(element, Element.methodizeMethods());
+			Object.extend(element, Element.methodizeMethods(Methods));
 
 			element._extendedByPrototype = JPlus.emptyFunction;
 	    return element;
-		}, {});
+		}, {
+			
+			refresh: function() {
+	      // extend methods for all tags (Safari doesn't need this)
+	      if (!JPlus.BrowserFeatures.ElementExtensions) {
+	        Object.extend(Methods, Element.Methods);
+	      }
+	    }
+	
+		});
 
+		extend.refresh();
 		return extend;
 	})();
+	
+	this.addMethods = function(methods) {
+	  Object.extend(Element.Methods, methods || { });
+
+	  if (JPlus.BrowserFeatures.ElementExtensions) {
+			Object.extend(HTMLElement.prototype, this.methodizeMethods(Element.Methods));
+	  }
+
+	  Object.extend(Element, Element.Methods);
+
+	  if (Element.extend.refresh) Element.extend.refresh();
+	};
 }).call(Element);
 
 Object.extend(Element, Element.Methods);

@@ -9,15 +9,18 @@
 	<meta name="author" content="nowa">
 	<script src="../src/core/jplus.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/core/browser.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../src/core/base.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../src/core/object.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../src/core/function.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../src/class/class.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/string.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/enumerable.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/array.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/number.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/hash.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/date.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../src/dom/dom.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../src/dom/element.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/event/event.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../src/dom/element.event.js" type="text/javascript" charset="utf-8"></script>
 	<style type="text/css" media="screen">
 		#foo{display:none;}
 	</style>
@@ -26,6 +29,17 @@
 			alert('loaded');
 		};
 		document.observe('dom:loaded', function() {alert('domready')});
+		var a = Class.create({
+			implements: [Event.Customs],
+			
+			say: function() {
+				alert('a');
+			}
+		});
+		
+		var i = new a();
+		i.addEvent('onA', function() {alert('a')});
+		i.fireEvent('onA');
 	</script>
 	<!-- Date: 2008-06-03 -->
 </head>

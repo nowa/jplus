@@ -100,6 +100,13 @@ Object.extend(Array.prototype, {
 		});
 	},
 	
+	cpush: function() {
+		var values = $A(arguments);
+		values.each(function(value) {
+			if (!this.include(value)) this.push(value);
+		}, this);
+	},
+	
 	/**
 	 * 克隆数组
 	 *

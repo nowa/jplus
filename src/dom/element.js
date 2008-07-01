@@ -112,20 +112,26 @@ Element.Methods = {
 			element._extendedByPrototype = JPlus.emptyFunction;
 	    return element;
 		}, {
-			
 			refresh: function() {
 	      // extend methods for all tags (Safari doesn't need this)
 	      if (!JPlus.BrowserFeatures.ElementExtensions) {
 	        Object.extend(Methods, Element.Methods);
 	      }
 	    }
-	
 		});
 
 		extend.refresh();
 		return extend;
 	})();
 	
+	/*
+	 * 给Element添加方法
+	 *
+	 * @author based on Prototype1.6
+	 * @class Element
+	 * @method addMethods
+	 * @param {Object:methods} methods hash
+	 */
 	this.addMethods = function(methods) {
 	  Object.extend(Element.Methods, methods || { });
 

@@ -105,6 +105,10 @@ Object.extend(Object, {
 		return '{' + results.join(', ') + '}';
 	},
 	
+	toQueryString: function(object) {
+    return $H(object).toQueryString();
+  },
+	
 	clone: function(object) {
     return Object.extend({ }, object);
   },
@@ -125,6 +129,16 @@ Object.extend(Object, {
 	isArray: function(object) {
     return object != null && typeof object == "object" &&
       'splice' in object && 'join' in object;
+  },
+
+	isDate: function(object) {
+    return object != null && typeof object == "object" &&
+      'getFullYear' in object && 'toGMTString' in object;
+  },
+
+	isRegExp: function(object) {
+    return object != null && typeof object == "object" &&
+      'test' in object && 'exec' in object;
   },
 	
 	isNumber: function(object) {

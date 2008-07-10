@@ -64,6 +64,80 @@ Element.Methods = {
 	show : function(element, d) {
 		$(element).style.display = d ? d : '';
     return element;
+	},
+	
+	set: function(element, prop, value){
+		element = $(element);
+		switch ($type(prop)){
+			case 'object':
+				for (var p in prop) element.set(p, prop[p]);
+				break;
+			case 'string':
+				var property = Element.Properties.get(prop);
+				(property && property.set) ? property.set.apply(element, Array.slice(arguments, 1)) : element.setProperty(prop, value);
+		}
+		return element;
+	},
+	
+	get: function(element, prop) {
+		element = $(element);
+		var property = Element.Properties.get(prop);
+		return (property && property.get) ? property.get.apply(element, Array.slice(arguments, 1)) : element.getProperty(prop);
+	},
+	
+	erase: function(element, prop){
+		element = $(element);
+		var property = Element.Properties.get(prop);
+		(property && property.erase) ? property.erase.apply(element, Array.slice(arguments, 1)) : element.removeProperty(prop);
+		return element;
+	},
+	
+	setProperty: function(element, attribute, value){
+		element = $(element);
+		var EA = Element.Attributes, key = EA.Props[attribute], hasValue = value ? value : !!value;
+		if (key && EA.Bools[attribute]) value = (value || !hasValue) ? true : false;
+		else if (!hasValue) return element.removeProperty(attribute);
+		(key) ? element[key] = value : element.setAttribute(attribute, value);
+		return element;
+	},
+	
+	getProperty: function(element, attribute){
+		element = $(element);
+		var EA = Element.Attributes, key = EA.Props[attribute];
+		var value = (key) ? element[key] : element.getAttribute(attribute);
+		return (EA.Bools[attribute]) ? !!value : value;
+	},
+	
+	removeProperty: function(element, attribute){
+		element = $(element);
+		var EA = Element.Attributes, key = EA.Props[attribute], isBool = (key && EA.Bools[attribute]);
+		(key) ? element[key] = (isBool) ? false : '' : element.removeAttribute(attribute);
+		return element;
+	},
+	
+	getElements: function(element, tags) {
+		if (Object.isString(tags)) tags = tags.split(',');
+		var elements = [];
+		var ddup = (tags.length > 1);
+		tags.each(function(tag) {
+			partial = this.getElementsByTagName(tag.trim());
+			elements = (ddup) ? elements.concat($A(partial)) : $A(partial);
+		}, $(element));
+		
+		return elements.unique().map(function(el) {
+			return $(el);
+		});
+	},
+	
+	toQueryString: function(element) {
+		return $(element).getElements('input, select, textarea').inject([], function(results, el) {
+			var name = el.name, type = el.type, value = el.get('value');
+			if (value === false || !name || el.disabled) return;
+			$splat(value).each(function(val) {
+				results.push(name + '=' + encodeURIComponent(val));
+			});
+			return results;
+		}).join('&');
 	}
 };
 
@@ -158,3 +232,57 @@ if (!JPlus.BrowserFeatures.ElementExtensions &&
 // 将Methods添加到window.HTMLElement，它是html element的constructor
 if (JPlus.BrowserFeatures.ElementExtensions)
 	Object.extend(window.HTMLElement.prototype, Element.methodizeMethods());
+
+Element.Properties = new Hash({
+	style: {
+		set: function(style){
+			this.style.cssText = style;
+		},
+
+		get: function(){
+			return this.style.cssText;
+		},
+
+		erase: function(){
+			this.style.cssText = '';
+		}
+	},
+	
+	value: {
+		get: function() {
+			switch (this.get('tag')){
+				case 'select':
+					var values = [];
+					$A(this.options).each(function(option){
+						if (option.selected) values.push(option.value);
+					});
+					return (this.multiple) ? values : values[0];
+				case 'input': if (['checkbox', 'radio'].include(this.type) && !this.checked) return false;
+				default: return $pick(this.value, false);
+			}
+		}
+	},
+	
+	tag: {
+		get: function(){
+			return this.tagName.toLowerCase();
+		}
+	}
+});
+
+Element.Attributes = {
+	Props: {'html': 'innerHTML', 'class': 'className', 'for': 'htmlFor', 'text': (JPlus.Browser.IE) ? 'innerText' : 'textContent'},
+	Bools: ['compact', 'nowrap', 'ismap', 'declare', 'noshade', 'checked', 'disabled', 'readonly', 'multiple', 'selected', 'noresize', 'defer'],
+	Camels: ['value', 'accessKey', 'cellPadding', 'cellSpacing', 'colSpan', 'frameBorder', 'maxLength', 'readOnly', 'rowSpan', 'tabIndex', 'useMap']
+};
+
+(function(EA){
+
+	var EAB = EA.Bools, EAC = EA.Camels;
+	EA.Bools = EAB = EAB.associate(EAB);
+	EA.Props = $H(EA.Props).merge(EAB).update(EAC.associate(EAC.map(function(v){
+		return v.toLowerCase();
+	}))).toObject();
+	delete EA.Camels;
+
+})(Element.Attributes);

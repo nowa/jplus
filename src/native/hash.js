@@ -200,6 +200,14 @@ var Hash = Class.create(Enumerable, {
 	 */
 	clone: function() {
     return new Hash(this);
-  }
+  },
+
+	toQueryString: function() {
+		return this.inject([], function(results, pair) {
+			var key = encodeURIComponent(pair.key), values = pair.value;
+			results = results.concat($splat(values).map(function(value) {return key + '=' + encodeURIComponent(String.interpret(value))}));
+			return results;
+		}).join('&');
+	}
 	
 });

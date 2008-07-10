@@ -21,16 +21,18 @@
 	<script src="../src/dom/element.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/event/event.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/dom/element.event.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../src/request/request.js" type="text/javascript" charset="utf-8"></script>
 	<style type="text/css" media="screen">
 		#foo{display:none;}
 	</style>
 	<script type="text/javascript" charset="utf-8">
-		window.onload = function() {
-			alert('loaded');
-		};
-		document.observe('dom:loaded', function() {alert('domready')});
+		function showfoo (event) {
+			Event.extend(event);
+			$('foo').show('block');
+		}
+		
 		var a = Class.create({
-			implements: [Event.Customs],
+			implement: [Event.Customs],
 			
 			say: function() {
 				alert('a');
@@ -38,8 +40,14 @@
 		});
 		
 		var i = new a();
-		i.addEvent('onA', function() {alert('a')});
-		i.fireEvent('onA');
+		
+		document.observe('dom:ready', function() {
+			$('foo').observe('click', showfoo);
+			i.addEvent('onA', function() {$('bar').innerHTML += '<br/>custom event fired.'});
+			i.fireEvent('onA');
+			
+			var ajax = new Request();
+		});
 	</script>
 	<!-- Date: 2008-06-03 -->
 </head>
@@ -51,24 +59,16 @@
 	
 	<input type="button" name="some_name" value="show foo" id="some_name" onclick="showfoo(event);" />
 	
-	<br/>
+	<br/><br/>
 	<div id="bar" onclick="showfoo(event)">
-		<div id="foo">
-			this is foo.
-		</div>
-
-		<input type="button" name="some_name" value="show foo" id="some_name" onclick="showfoo(event);" />
+		this is bar.
+		<input type="text" name="some_name" value="this is text input" id="some_name">
+		<textarea name="ta" rows="8" cols="40">textarea</textarea>
 	</div>
 	
 	<br/><br/>
 	
-	<img src="http://farm1.static.flickr.com/25/65792910_15c3120980_o.jpg" />
-	
 	<script type="text/javascript" charset="utf-8">
-		function showfoo (event) {
-			Event.extend(event);
-			$('foo').show('block');
-		}
 		
 		// $('bar').innerHTML = 'i am nowa'.gsub('a', function(match) {return match[0].toUpperCase()});
 		

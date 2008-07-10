@@ -287,6 +287,16 @@ var Enumerable = {
 		}).pluck('value');
 	},
 	
+	unique: function() {
+		var uniques = [];
+		this.each(function(value) {
+			if (uniques.include(value)) return;
+			uniques.push(value);
+		});
+		
+		return uniques;
+	},
+	
 	/**
 	 * 可遍历集合转换成数组
 	 *

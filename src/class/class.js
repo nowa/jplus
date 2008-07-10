@@ -29,20 +29,20 @@ var Class = {
 		for (var i = 0; i < properties.length; i++)
       klass.addMethods(properties[i]);
 
-		if (!klass.prototype.initialize)
-      klass.prototype.initialize = JPlus.emptyFunction;
-
-		['implements'].each(function(prop) {
+		['implement'].each(function(prop) {
 			if (!this[prop]) return;
 			Class[prop](this, this[prop]);
 			delete this[prop];
 		}, klass.prototype);
+		
+		if (!klass.prototype.initialize)
+      klass.prototype.initialize = JPlus.emptyFunction;
 
 		klass.prototype.constructor = klass;
 		return klass;
 	},
 	
-	implements: function(self, klasses) {
+	implement: function(self, klasses) {
 		$A(klasses).each(function(k) {
 			Object.extend(self, (typeof k).toLowerCase() == 'function' ? new k(JPlus.k) : k);
 		});

@@ -8,6 +8,9 @@
 
 var Event = window.Event || {};
 
+/*
+	TODO addEvent可以返回一个对象使其可以调用subscribe方法添加事件响应
+*/
 Event.Customs = Class.create({
 	
 	addEvent: function(type, fn, internal) {

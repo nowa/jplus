@@ -198,7 +198,7 @@ Object.extend(document, {
   fire:          Element.Methods.fire.methodize(),
   observe:       Element.Methods.observe.methodize(),
   stopObserving: Element.Methods.stopObserving.methodize(),
-  loaded:        false
+  ready:        false
 });
 
 (function() {
@@ -208,10 +208,10 @@ Object.extend(document, {
   var timer;
   
   function fireContentLoadedEvent() {
-    if (document.loaded) return;
+    if (document.ready) return;
     if (timer) window.clearInterval(timer);
-    document.fire("dom:loaded");
-    document.loaded = true;
+    document.fire("dom:ready");
+    document.ready = true;
   }
   
   if (document.addEventListener) {

@@ -61,6 +61,14 @@ Object.extend(Array.prototype, {
 		return this;
 	},
 	
+	associate: function(keys){
+		var length = Math.min(this.length, keys.length);
+		return this.inject({}, function(obj, value, index) {
+			obj[keys[index]] = value;
+			return obj;
+		});
+	},
+	
 	/**
 	 * 返回第一个数组项
 	 *

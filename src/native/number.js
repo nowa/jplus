@@ -88,6 +88,14 @@ Object.extend(Number.prototype, {
 	
 	to_day: function() {
 		return this / (1000 * 60 * 60 * 24);
+	},
+	
+	to_hour: function() {
+		return this / (1000 * 60 * 60);
+	},
+	
+	to_minute: function() {
+		return this / (1000 * 60);
 	}
 	
 });

@@ -43,3 +43,15 @@ function $pick(){
 	}
 	return null;
 };
+
+function $try(fn, bind, args){
+	try {
+		return fn.apply(bind, $splat(args));
+	} catch(e){
+		return false;
+	}
+};
+
+function $random(min, max){
+	return Math.floor(Math.random() * (max - min + 1) + min);
+};

@@ -35,3 +35,17 @@ JPlus.BrowserFeatures = {
 
 if (JPlus.Browser.MobileSafari)
   JPlus.BrowserFeatures.SpecificElementExtensions = false;
+
+function $exec(text){
+	if (!text) return text;
+	if (window.execScript){
+		window.execScript(text);
+	} else {
+		var script = document.createElement('script');
+		script.setAttribute('type', 'text/javascript');
+		script.text = text;
+		document.head.appendChild(script);
+		document.head.removeChild(script);
+	}
+	return text;
+};

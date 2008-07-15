@@ -15,14 +15,18 @@ var Request = Class.create({
 		async: 				true,
 		method: 			'post',
 		headers: 			{},
-		contentType:  'application/x-www-form-urlencoded',
-		parameters:   '',
+		urlEncoded: 	true,
 		url: 					'',
 		data: 				'',
 		link: 				'ignore',
+		sanitizeJSON: false,
 		evalJSON:     true,
-    evalJS:       true
+		stripScripts: false,
+		evalScripts: 	false,
+    evalResponse: false
 	},
+	
+	events: ['Uninitialized', 'Loading', 'Loaded', 'Interactive', 'Complete'],
 
 	getXHR: function(){
 		return (window.XMLHttpRequest) ? new XMLHttpRequest() : ((window.ActiveXObject) ? new ActiveXObject('Microsoft.XMLHTTP') : false);
@@ -32,22 +36,24 @@ var Request = Class.create({
 		if (!(this.xhr = this.getXHR())) return;
 		Object.extend(this.options, options || {});
 		this.options.method = this.options.method.toLowerCase();
-		
-		if (Object.isString(this.options.parameters))
-			this.options.parameters = this.options.parameters.toQueryParams();
-		else if (Object.isHash(this.options.parameters))
-			this.options.parameters = this.options.parameters.toObject();
-		
-		this.headers = new Hash(this.options.headers).update({
-			'X-Requested-With': 'XMLHttpRequest',
-			'X-JPlus-Version': JPlus.Version,
-			'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
-		});
+		this.options.isSuccess = this.options.isSuccess || this.isSuccess;
+		this.headers = $H({});
 	},
 	
 	check: function() {
 		if (!this._running) return true;
 		return false;
+	},
+	
+	setHeader: function(name, value){
+		this.headers.set(name, value);
+		return this;
+	},
+
+	getHeader: function(name){
+		return $try(function(){
+			return this.getResponseHeader(name);
+		}, this.xhr) || null;
 	},
 	
 	send: function(options) {
@@ -57,27 +63,212 @@ var Request = Class.create({
 		this.url = this.options.url;
 		this.method = this.options.method;
 		
-		if (Object.isString(options) || Object.isElement(options)) options = {data: options};
+		var append_to_data = function(s) {
+			this.options.data += (this.options.data.blank() ? '' : '&') + s;
+		};
+		
+		var type = $type(options);
+		switch(type){
+			case 'string': append_to_data.call(this, options); break;
+			case 'element': append_to_data.call(this, $(options).toQueryString()); break;
+			case 'object': case 'hash': append_to_data.call(this, options.toQueryString());
+		}
+		if (['string', 'element', 'object', 'hash'].include(type)) options = {};
 		Object.extend(this.options, options || {});
 		
 		var data = this.options.data;
-		if (Object.isElement(data))
-			data = $(data).toQueryString();
-		else if (Object.isHash(data))
-			data = data.toQueryString();
-		
-		var params = Object.clone(this.options.parameters);
 		
 		// 处理put、delete等http method
 		if (!['get', 'post'].include(this.method)) {
-			params['_method'] = this.method;
+			var _method = '_method=' + method;
+			data = (data) ? _method + '&' + data : _method;
 			this.method = 'post';
 		}
-		this.parameters = params;
+		this.data = data;
+		data = null;
+		
+		if (data && method == 'get'){
+			this.url += (this.url.include('?') ? '&' : '?') + this.data;
+			this.data = null;
+		}
+		
+		try {
+			this.fireEvent('onCreate', [this]);
+			this.xhr.open(this.method.toLowerCase(), this.url, this.async);
+			
+			this.xhr.onreadystatechange = this.onStateChange.bind(this);
+			this.setRequestHeaders();
+			
+			this.fireEvent('onRequest', [this]);
+			this.xhr.send(this.data);
+			if (!this.options.async) this.onStateChange();
+			return this;
+		} catch(e) {
+			this.fireEvent('onException', [this, e]);
+		}
+	},
+	
+	getStatus: function() {
+    try {
+      return this.xhr.status || 0;
+    } catch (e) { return 0 } 
+  },
+
+	isSuccess: function() {
+    var status = this.getStatus();
+    return !status || (status >= 200 && status < 300);
+  },
+
+	processScripts: function(text) {
+		if (this.options.evalResponse == 'force' || (/(ecma|java)script/).test(response.getHeader('Content-type'))) return $exec(text);
+		if (this.options.evalScripts == 'force') text.evalScripts();
+		if (this.options.stripScripts === true) return text.stripScripts();
+		return text;
+	},
+	
+	onStateChange: function() {
+		var readyState = this.xhr.readyState;
+    if (readyState > 1 && !((readyState == 4) && !this.running)) // readyState>1 并且不是 readyState==4和运行结束同时成立
+      this.respondToReadyState(this.xhr.readyState);
+	},
+	
+	respondToReadyState: function(readyState) {
+		var state = this.state = this.events[readyState], reponse = new Response(this);
+		
+		if (state == 'Complete') {
+			this.running = false;
+			this.status = response.status;
+			(this.options['on' + this.status] || JPlus.emptyFunction)(this, response, response.headerJSON);
+			this.fireEvent('on' + this.status, [this, reponse, response.headerJSON]);
+			var _result = this.options.isSuccess.call(this, this.status) ? 'Success' : 'Failure';
+			(this.options['on' + _result] || JPlus.emptyFunction)(this, response, response.headerJSON);
+			this.fireEvent('on' + _result, [this, reponse, response.headerJSON]);
+			
+			response.responseText = this.processScripts(reponse.responseText);
+		}
+		
+		(this.options['on' + state] || JPlus.emptyFunction)(this, response, response.headerJSON);
+		this.fireEvent('on' + state, [this, reponse, reponse.headerJSON]);
+		
+		if (state == 'Complete')
+			this.xhr.onreadystatechange = JPlus.emptyFunction;
+	},
+	
+	// 设置http头
+	setRequestHeaders: function() {
+		// this.headers = new Hash(this.options.headers).update({
+		var headers = {
+			'X-Requested-With': 'XMLHttpRequest',
+			'X-JPlus-Version': JPlus.Version,
+			'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
+		};
+		
+		if (this.options.urlEncoded && this.method == 'post'){
+			var encoding = (this.options.encoding) ? '; charset=' + this.options.encoding : '';
+			headers['Content-type'] = 'application/x-www-form-urlencoded' + encoding);
+			
+			/* Force "Connection: close" for older Mozilla browsers to work
+       * around a bug where XMLHttpRequest sends an incorrect
+       * Content-length header. See Mozilla Bugzilla #246651. 
+       */
+      if (this.xhr.overrideMimeType &&
+          (navigator.userAgent.match(/Gecko\/(\d{4})/) || [0,2005])[1] < 2005)
+            headers['Connection'] = 'close';
+		}
+		
+		this.headers.update($H(this.options.headers).update(headers));
+		this.headers.each(function(pair) {
+			try {
+				this.xhr.setRequestHeader(pair.key, pair.value);
+			} catch(e) {
+				this.fireEvent('onException', [this, e, pair]);
+			}
+		});
 	},
 	
 	cancel: function() {
-		this.fireEvent('onCancel');
+		if (!this.running) return this;
+		this.running = false;
+		this.xhr.abort();
+		this.xhr.onreadystatechange = JPlus.emptyFunction;
+		this.xhr = this.getXHR();
+		this.fireEvent('onCancel', [this]);
+		return this;
 	}
 
+});
+
+var Response = Class.create({
+	initialize: function(request){
+    this.request = request;
+    var xhr  = this.xhr  = request.xhr,
+        readyState = this.readyState = xhr.readyState;
+    
+    if((readyState > 2 && !JPlus.Browser.IE) || readyState == 4) {
+      this.status       = this.getStatus();
+      this.statusText   = this.getStatusText();
+      this.responseText = String.interpret(xhr.responseText);
+      this.headerJSON   = this._getHeaderJSON();
+    }
+    
+    if(readyState == 4) {
+      var xml = xhr.responseXML;
+      this.responseXML  = Object.isUndefined(xml) ? null : xml;
+      this.responseJSON = this._getResponseJSON();
+    }
+  },
+  
+  status:      0,
+  statusText: '',
+  
+  getStatus: Request.prototype.getStatus,
+  
+  getStatusText: function() {
+    try {
+      return this.xhr.statusText || '';
+    } catch (e) { return '' }
+  },
+  
+  getHeader: Request.prototype.getHeader,
+  
+  getAllHeaders: function() {
+    try {
+      return this.getAllResponseHeaders();
+    } catch (e) { return null } 
+  },
+  
+  getResponseHeader: function(name) {
+    return this.xhr.getResponseHeader(name);
+  },
+  
+  getAllResponseHeaders: function() {
+    return this.xhr.getAllResponseHeaders();
+  },
+  
+	/*
+		TODO 支持域检查
+	*/
+  _getHeaderJSON: function() {
+    var json = this.getHeader('X-JSON');
+    if (!json) return null;
+    json = decodeURIComponent(escape(json));
+    try {
+      return json.evalJSON(this.request.options.sanitizeJSON);
+    } catch (e) {
+      this.request.fireEvent('onException', [e, this.request]);
+    }
+  },
+  
+  _getResponseJSON: function() {
+    var options = this.request.options;
+    if (!options.evalJSON || (options.evalJSON != 'force' && 
+      !(this.getHeader('Content-type') || '').include('application/json')) || 
+        this.responseText.blank())
+          return null;
+    try {
+      return this.responseText.evalJSON(options.sanitizeJSON);
+    } catch (e) {
+      this.request.fireEvent('onException', [e, this.request]);
+    }
+  }
 });

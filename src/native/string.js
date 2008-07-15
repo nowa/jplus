@@ -191,6 +191,18 @@ Object.extend(String.prototype, {
 		return this.replace(new RegExp(String.patterns.script, 'img'), '');
 	},
 	
+	extractScripts: function() {
+    var matchAll = new RegExp(Prototype.ScriptFragment, 'img');
+    var matchOne = new RegExp(Prototype.ScriptFragment, 'im');
+    return (this.match(matchAll) || []).map(function(scriptTag) {
+      return (scriptTag.match(matchOne) || ['', ''])[1];
+    });
+  },
+  
+  evalScripts: function() {
+    return this.extractScripts().map(function(script) { return eval(script) });
+  },
+	
 	/**
 	 * 转义字符串里html tag
 	 *
@@ -332,15 +344,14 @@ Object.extend(String.prototype, {
 	 * @author from prototype1.6
 	 * @class String
 	 * @method repeat
-	 * @param {Integer:count} 重复的次数
+	 * @param {Boolean:sanitize} 不eval
 	 * @return {String} string
 	 */
   evalJSON: function(sanitize) {
     var json = this.unfilterJSON();
     try {
       if (!sanitize || json.isJSON()) return eval('(' + json + ')');
-    } catch (e) { }
-    throw new SyntaxError('Badly formed JSON string: ' + this.inspect());
+    } catch (e) { throw new SyntaxError('Badly formed JSON string: ' + this.inspect()); }
   }
 	
 });

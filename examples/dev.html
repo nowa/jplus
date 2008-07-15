@@ -32,7 +32,7 @@
 		}
 		
 		var a = Class.create({
-			implement: [Event.Customs],
+			implement: Event.Customs,
 			
 			say: function() {
 				alert('a');
@@ -47,6 +47,21 @@
 			i.fireEvent('onA');
 			
 			var ajax = new Request();
+			ajax.addEvents({
+				onCreate: function() {alert('create')},
+				onRequest: function() {alert('request')},
+				onSuccess: function() {alert('Success')},
+				onException: function() {alert('exception')},
+				on200: function() {alert('200')}
+			});
+			ajax.send({
+				url: 'http://localhost/~nowa/',
+				data: {
+					name: 'nowa',
+					age: 24
+				},
+				onComplete: function() {alert('completed')}
+			});
 		});
 	</script>
 	<!-- Date: 2008-06-03 -->
@@ -67,6 +82,7 @@
 	</div>
 	
 	<br/><br/>
+	<div id="log"></div>
 	
 	<script type="text/javascript" charset="utf-8">
 		

@@ -13,6 +13,12 @@ var Class = {
 		
 		function klass () {
 			this.initialize.apply(this, arguments);
+			
+			['implement'].each(function(prop) {
+				if (!this[prop]) return;
+				Class[prop](this, this[prop]);
+				delete this[prop];
+			}, this);
 		}
 		
 		Object.extend(klass, Class.Methods);
@@ -28,12 +34,6 @@ var Class = {
 		
 		for (var i = 0; i < properties.length; i++)
       klass.addMethods(properties[i]);
-
-		['implement'].each(function(prop) {
-			if (!this[prop]) return;
-			Class[prop](this, this[prop]);
-			delete this[prop];
-		}, klass.prototype);
 		
 		if (!klass.prototype.initialize)
       klass.prototype.initialize = JPlus.emptyFunction;
@@ -43,8 +43,8 @@ var Class = {
 	},
 	
 	implement: function(self, klasses) {
-		$A(klasses).each(function(k) {
-			Object.extend(self, (typeof k).toLowerCase() == 'function' ? new k(JPlus.k) : k);
+		$splat(klasses).each(function(k) {
+			Object.extend(self, (typeof k).toLowerCase() == 'function' ? new k(JPlus.emptyFunction) : k);
 		});
 	}
 };

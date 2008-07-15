@@ -8,7 +8,7 @@
 
 var Request = Class.create({
 
-	implement: [Event.Custom],
+	implement: Event.Customs,
 
 	options: {
 		encoding: 		'utf-8',
@@ -60,23 +60,18 @@ var Request = Class.create({
 		if (!this.check(options)) return this;
 		this._running = true;
 		
-		this.url = this.options.url;
-		this.method = this.options.method;
-		
-		var append_to_data = function(s) {
-			this.options.data += (this.options.data.blank() ? '' : '&') + s;
-		};
-		
 		var type = $type(options);
-		switch(type){
-			case 'string': append_to_data.call(this, options); break;
-			case 'element': append_to_data.call(this, $(options).toQueryString()); break;
-			case 'object': case 'hash': append_to_data.call(this, options.toQueryString());
+		if (type == 'string' || type == 'element') options = {data: options};
+
+		options = Object.extend(this.options, options);
+		var data = options.data;
+		this.url = options.url;
+		this.method = options.method;
+
+		switch($type(data)){
+			case 'element': data = $(data).toQueryString(); break;
+			case 'object': case 'hash': data = Object.toQueryString(data);
 		}
-		if (['string', 'element', 'object', 'hash'].include(type)) options = {};
-		Object.extend(this.options, options || {});
-		
-		var data = this.options.data;
 		
 		// 处理put、delete等http method
 		if (!['get', 'post'].include(this.method)) {
@@ -84,17 +79,17 @@ var Request = Class.create({
 			data = (data) ? _method + '&' + data : _method;
 			this.method = 'post';
 		}
-		this.data = data;
+		this.data = this.options.data = data;
 		data = null;
 		
 		if (data && method == 'get'){
 			this.url += (this.url.include('?') ? '&' : '?') + this.data;
 			this.data = null;
 		}
-		
+
 		try {
 			this.fireEvent('onCreate', [this]);
-			this.xhr.open(this.method.toLowerCase(), this.url, this.async);
+			this.xhr.open(this.method.toUpperCase(), this.url, this.options.async);
 			
 			this.xhr.onreadystatechange = this.onStateChange.bind(this);
 			this.setRequestHeaders();
@@ -102,10 +97,10 @@ var Request = Class.create({
 			this.fireEvent('onRequest', [this]);
 			this.xhr.send(this.data);
 			if (!this.options.async) this.onStateChange();
-			return this;
 		} catch(e) {
 			this.fireEvent('onException', [this, e]);
 		}
+		return this;
 	},
 	
 	getStatus: function() {
@@ -119,7 +114,8 @@ var Request = Class.create({
     return !status || (status >= 200 && status < 300);
   },
 
-	processScripts: function(text) {
+	processScripts: function(response) {
+		var text = response.responseText;
 		if (this.options.evalResponse == 'force' || (/(ecma|java)script/).test(response.getHeader('Content-type'))) return $exec(text);
 		if (this.options.evalScripts == 'force') text.evalScripts();
 		if (this.options.stripScripts === true) return text.stripScripts();
@@ -128,27 +124,27 @@ var Request = Class.create({
 	
 	onStateChange: function() {
 		var readyState = this.xhr.readyState;
-    if (readyState > 1 && !((readyState == 4) && !this.running)) // readyState>1 并且不是 readyState==4和运行结束同时成立
+    if (readyState > 1 && !((readyState == 4) && !this._running)) // readyState>1 并且不是 readyState==4和运行结束同时成立
       this.respondToReadyState(this.xhr.readyState);
 	},
 	
 	respondToReadyState: function(readyState) {
-		var state = this.state = this.events[readyState], reponse = new Response(this);
-		
+		var state = this.state = this.events[readyState], response = new Response(this);
+		$('log').innerHTML = state;
 		if (state == 'Complete') {
-			this.running = false;
+			this._running = false;
 			this.status = response.status;
 			(this.options['on' + this.status] || JPlus.emptyFunction)(this, response, response.headerJSON);
-			this.fireEvent('on' + this.status, [this, reponse, response.headerJSON]);
+			this.fireEvent('on' + this.status, [this, response, response.headerJSON]);
 			var _result = this.options.isSuccess.call(this, this.status) ? 'Success' : 'Failure';
 			(this.options['on' + _result] || JPlus.emptyFunction)(this, response, response.headerJSON);
-			this.fireEvent('on' + _result, [this, reponse, response.headerJSON]);
+			this.fireEvent('on' + _result, [this, response, response.headerJSON]);
 			
-			response.responseText = this.processScripts(reponse.responseText);
+			response.responseText = this.processScripts(response);
 		}
 		
 		(this.options['on' + state] || JPlus.emptyFunction)(this, response, response.headerJSON);
-		this.fireEvent('on' + state, [this, reponse, reponse.headerJSON]);
+		this.fireEvent('on' + state, [this, response, response.headerJSON]);
 		
 		if (state == 'Complete')
 			this.xhr.onreadystatechange = JPlus.emptyFunction;
@@ -183,12 +179,12 @@ var Request = Class.create({
 			} catch(e) {
 				this.fireEvent('onException', [this, e, pair]);
 			}
-		});
+		}, this);
 	},
 	
 	cancel: function() {
-		if (!this.running) return this;
-		this.running = false;
+		if (!this._running) return this;
+		this._running = false;
 		this.xhr.abort();
 		this.xhr.onreadystatechange = JPlus.emptyFunction;
 		this.xhr = this.getXHR();

@@ -130,7 +130,6 @@ var Request = Class.create({
 	
 	respondToReadyState: function(readyState) {
 		var state = this.state = this.events[readyState], response = new Response(this);
-		$('log').innerHTML = state;
 		if (state == 'Complete') {
 			this._running = false;
 			this.status = response.status;

@@ -165,7 +165,7 @@ var Request = Class.create({
 		
 		if (this.options.urlEncoded && this.method == 'post'){
 			var encoding = (this.options.encoding) ? '; charset=' + this.options.encoding : '';
-			headers['Content-type'] = 'application/x-www-form-urlencoded' + encoding);
+			headers['Content-type'] = 'application/x-www-form-urlencoded' + encoding;
 			
 			/* Force "Connection: close" for older Mozilla browsers to work
        * around a bug where XMLHttpRequest sends an incorrect

@@ -42,6 +42,9 @@ var Request = Class.create({
 	
 	check: function() {
 		if (!this._running) return true;
+		switch (this.options.link){
+			case 'cancel': this.cancel(); return true;
+		}
 		return false;
 	},
 	
@@ -75,14 +78,14 @@ var Request = Class.create({
 		
 		// 处理put、delete等http method
 		if (!['get', 'post'].include(this.method)) {
-			var _method = '_method=' + method;
+			var _method = '_method=' + this.method;
 			data = (data) ? _method + '&' + data : _method;
 			this.method = 'post';
 		}
 		this.data = this.options.data = data;
 		data = null;
 		
-		if (data && method == 'get'){
+		if (this.data && this.method == 'get'){
 			this.url += (this.url.include('?') ? '&' : '?') + this.data;
 			this.data = null;
 		}
@@ -267,3 +270,16 @@ var Response = Class.create({
     }
   }
 });
+
+// alias
+(function(){
+var methods = {};
+['get', 'post', 'GET', 'POST', 'PUT', 'DELETE'].each(function(method){
+	methods[method] = function(){
+		var params = Array.link(arguments, {url: String.type, data: false});
+		return this.send(Object.extend(params, {method: method.toLowerCase()}));
+	};
+});
+
+Object.extend(Request.prototype, methods);
+})();

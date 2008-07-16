@@ -115,6 +115,28 @@ Object.extend(Array.prototype, {
 		}, this);
 	},
 	
+	link: function(object){
+		return this.inject({}, function(result, value) {
+			for (var key in object) {
+				if (object[key](this[i])){
+					result[key] = this[i];
+					delete object[key];
+					break;
+				}
+			}
+			return result;
+		});
+	},
+	
+	flatten: function(){
+		return this.inject([], function(array, value) {
+			var _type;
+			if (_type = $type(value))
+				array = array.concat((_type == 'array' || _type == 'collection' || _type == 'arguments') ? value.flatten() : value);
+			return array;
+		});
+	},
+	
 	/**
 	 * 克隆数组
 	 *

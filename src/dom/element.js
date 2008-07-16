@@ -10,15 +10,16 @@
  * @param {Object} 参数可以是Array也可以是String
  * @return {Array or Element} 如果参数是Array，那么返回值也是一个element数组；如果参数是String，返回值是element object
  */
-function $(element) {
-  if (arguments.length > 1) {
-    for (var i = 0, elements = [], length = arguments.length; i < length; i++)
-      elements.push($(arguments[i]));
+function $(element, notrash) {
+  if ($type(element) == 'array') {
+    for (var i = 0, elements = [], length = element.length; i < length; i++)
+      elements.push($(element[i]));
     return elements;
   }
   if (Object.isString(element))
     element = document.getElementById(element);
-  return Element.extend(element);
+	element.uid = element.uid || [Element.UID++];
+  return (!notrash && Garbage.collect(element)) ? Element.extend(element) : element;
 }
 
 // element constructor
@@ -36,6 +37,8 @@ function $(element) {
 	Object.extend(this.Element, element || {});
 	if (element) this.Element.prototype = element.prototype;
 }).call(window);
+
+Element.UID = 0;
 
 Element.Methods = {
 	/*
@@ -267,6 +270,12 @@ Element.Properties = new Hash({
 		get: function(){
 			return this.tagName.toLowerCase();
 		}
+	},
+	
+	html: {
+		set: function(){
+			return this.innerHTML = $A(arguments).flatten().join('');
+		}
 	}
 });
 
@@ -286,3 +295,38 @@ Element.Attributes = {
 	delete EA.Camels;
 
 })(Element.Attributes);
+
+var Garbage = {
+
+	Elements: {},
+
+	ignored: {object: 1, embed: 1, OBJECT: 1, EMBED: 1},
+
+	collect: function(el){
+		if (el.$attributes) return true;
+		if (Garbage.ignored[el.tagName]) return false;
+		Garbage.Elements[el.uid] = el;
+		el.$attributes = {};
+		return true;
+	},
+
+	trash: function(elements){
+		for (var i = elements.length, el; i--; i) Garbage.kill(elements[i]);
+	},
+
+	kill: function(el){
+		if (!el || !el.$attributes) return;
+		delete Garbage.Elements[el.uid];
+		if (el.retrieve('events')) el.removeEvents();
+		for (var p in el.$attributes) el.$attributes[p] = null;
+		if (Browser.Engine.trident){
+			for (var d in Element.Prototype) el[d] = null;
+		}
+		el.$attributes = el.uid = null;
+	},
+
+	empty: function(){
+		for (var uid in Garbage.Elements) Garbage.kill(Garbage.Elements[uid]);
+	}
+
+};

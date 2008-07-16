@@ -62,7 +62,7 @@ Class.Methods = {
 			// 支持$super父类同名方法调用
 			if (ancestor && Object.isFunction(value) &&
           value.argumentNames().first() == "$super") {
-        var method = value, value = Object.extend((function(m) { 
+        var method = value, value = Object.extend((function(m) {
           return function() { return ancestor[m].apply(this, arguments) };
         })(property).wrap(method), {
           valueOf:  function() { return method },

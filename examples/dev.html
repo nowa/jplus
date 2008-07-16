@@ -45,6 +45,9 @@
 			$('foo').observe('click', showfoo);
 			i.addEvent('onA', function() {$('bar').innerHTML += '<br/>custom event fired.'});
 			i.fireEvent('onA');
+			(3).times(function() {
+				alert('uid:' + $('foo').uid);
+			});
 			
 			var ajax = new Request();
 			ajax.addEvents({
@@ -55,13 +58,15 @@
 				on200: function() {alert('200')}
 			});
 			ajax.send({
+				method: 'get',
 				url: 'http://localhost/~nowa/',
 				data: {
 					name: 'nowa',
 					age: 24
-				},
-				onComplete: function() {alert('completed')}
+				}
+				// onComplete: function(request, response) {alert(response.responseText);}
 			});
+			alert(ajax.post);
 		});
 	</script>
 	<!-- Date: 2008-06-03 -->

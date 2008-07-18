@@ -33,10 +33,11 @@ Event.Customs = Class.create({
 		if (!this._events || !this._events[type]) return this;
 		options = options || {};
 		options.bind = options.bind || this;
+		args = args || [];
 		args = options.event ? [options.event].concat($A(args)) : args;
 		this._events[type].each(function(fn) {
 			var _call = function() { return fn.apply(options.bind, args) };
-			if (options.delay) 
+			if ($defined(options.delay)) 
 				_call.delay(options.delay);
 			else
 				_call();

@@ -27,7 +27,7 @@ var Enumerable = {
 				iterator.call(context, value, index++);
 			});
 		} catch(e) {
-			if (e != $break) throw e;
+			if (e != $break) { throw e; }
 		}
 		return this;
 	},

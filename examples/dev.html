@@ -45,16 +45,13 @@
 			$('foo').observe('click', showfoo);
 			i.addEvent('onA', function() {$('bar').innerHTML += '<br/>custom event fired.'});
 			i.fireEvent('onA');
-			(3).times(function() {
-				alert('uid:' + $('foo').uid);
-			});
 			
 			var ajax = new Request();
 			ajax.addEvents({
 				onCreate: function() {alert('create')},
 				onRequest: function() {alert('request')},
 				onSuccess: function() {alert('Success')},
-				onException: function() {alert('exception')},
+				onException: function(request, e) {alert(e.description ? e.description : e)},
 				on200: function() {alert('200')}
 			});
 			ajax.send({
@@ -66,7 +63,6 @@
 				}
 				// onComplete: function(request, response) {alert(response.responseText);}
 			});
-			alert(ajax.post);
 		});
 	</script>
 	<!-- Date: 2008-06-03 -->

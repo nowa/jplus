@@ -55,7 +55,7 @@ Object.extend(Number.prototype, {
 	 * @return {Number} number
 	 */
 	times: function(iterator, context) {
-		new Array(parseInt(this)).each(iterator, context);
+		new Array(parseInt(this)).map(function(value, index) {return index}).each(iterator, context);
 		return this;
 	},
 	

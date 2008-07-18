@@ -283,3 +283,34 @@ var methods = {};
 
 Object.extend(Request.prototype, methods);
 })();
+
+Element.Properties.send = {
+	
+	set: function(options){
+		var send = this.retrieve('send');
+		if (send) send.cancel();
+		return this.eliminate('send').store('send:options', Object.extend({
+			data: this, link: 'cancel', method: this.get('method') || 'post', url: this.get('action')
+		}, options));
+	},
+
+	get: function(options){
+		if (options || !this.retrieve('send')){
+			if (options || !this.retrieve('send:options')) this.set('send', options);
+			this.store('send', new Request(this.retrieve('send:options')));s
+		}
+		return this.retrieve('send');
+	}
+
+};
+
+Element.addMethods({
+
+	send: function(element, url){
+		element = $(element);
+		var sender = element.get('send');
+		sender.send({data: element, url: url || sender.options.url});
+		return element;
+	}
+
+});

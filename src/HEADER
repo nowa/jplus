@@ -5,7 +5,7 @@
  *  and freely distributable under the terms of an MIT-style license.
  *  For details, see the JPlus web site: http://jplus.welost.us/
  *
- *  这是一个Prototype、Ruby风格的框架，从它们里面借鉴了不少东西。很多代码来自Prototype，感谢它的开发者们。
+ *  这是一个Ruby风格的框架，从它里面借鉴了不少东西。很多代码来自Prototype和mootools，感谢它们的开发者们。
  *  2008-05-16 Hangzhou, China.
  *
  *--------------------------------------------------------------------------*/

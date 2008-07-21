@@ -17,8 +17,6 @@ DCalendar.core = Class.create({
 	implement: Event.Customs,
 	
 	options: {
-		autoshow: true,
-		showfix: false,
 		wrapper: null
 	},
 	

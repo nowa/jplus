@@ -56,10 +56,12 @@ function $random(min, max){
 	return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-<%= include 'browser.js', 'object.js', 'function.js' %>
+<%= include '../core/browser.js', '../core/object.js', '../core/function.js' %>
 
 <%= include '../class/class.js' %>
 
 <%= include '../native/string.js', '../native/enumerable.js', '../native/array.js', '../native/number.js', '../native/hash.js', '../native/date.js', '../native/range.js' %>
 
 <%= include '../dom/element.js', '../event/event.js', '../dom/element.event.js', '../request/request.js' %>
+
+<%= include 'dcalendar.js' %>

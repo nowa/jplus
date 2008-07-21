@@ -41,13 +41,26 @@
 		}
 		
 		.dcalendar td{
-			background: #fff;
+			background-color: #fff;
 		}
 		
 		.dcalendar .dcal-days td{
 			width: 20px;
 			height: 30px;
 			line-height: 30px;
+		}
+		
+		.dcal-days td.selected{
+			background-color: #0099CB;
+			color: #fff;
+		}
+		
+		.dcal-selected{
+			margin: 10px 20px;
+		}
+		
+		.dcal-selected li{
+			line-height: 20px;
 		}
 	</style>
 </head>
@@ -56,6 +69,8 @@
 	<div id="main">
 		<h3>DCalendar <span class="author">by <a href="http://nowazhu.com/blog/">nowa</a></span></h3>
 		
+		<div jpc="dcalendar"></div>
+		<br><br><br>
 		<div jpc="dcalendar"></div>
 	</div>
 

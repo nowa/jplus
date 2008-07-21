@@ -22,6 +22,10 @@ function $(element, notrash) {
   return (!notrash) ? Element.extend(element) : element;
 }
 
+function $i(id) {
+	return document.getElementById(id);
+}
+
 // element constructor
 (function() {
 	var element = this.Element;
@@ -85,7 +89,7 @@ Element.Methods = {
 				break;
 			case 'string':
 				var property = Element.Properties.get(prop);
-				(property && property.set) ? property.set.apply(element, Array.slice(arguments, 1)) : element.setProperty(prop, value);
+				(property && property.set) ? property.set.apply(element, $A(arguments).slice(1)) : element.setProperty(prop, value);
 		}
 		return element;
 	},
@@ -93,13 +97,13 @@ Element.Methods = {
 	get: function(element, prop) {
 		element = $(element);
 		var property = Element.Properties.get(prop);
-		return (property && property.get) ? property.get.apply(element, Array.slice(arguments, 1)) : element.getProperty(prop);
+		return (property && property.get) ? property.get.apply(element, $A(arguments).slice(1)) : element.getProperty(prop);
 	},
 	
 	erase: function(element, prop){
 		element = $(element);
 		var property = Element.Properties.get(prop);
-		(property && property.erase) ? property.erase.apply(element, Array.slice(arguments, 1)) : element.removeProperty(prop);
+		(property && property.erase) ? property.erase.apply(element, $A(arguments).slice(1)) : element.removeProperty(prop);
 		return element;
 	},
 	

@@ -59,6 +59,10 @@ Object.extend(Number.prototype, {
 		return this;
 	},
 	
+	succ: function() {
+    return this + 1;
+  },
+	
 	/**
 	 * 数字转换成指定进制、指定长度的字符串，不足的在高位以0补全
 	 *

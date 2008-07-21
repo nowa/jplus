@@ -12,6 +12,8 @@ var DCalendar = {
 
 DCalendar.core = Class.create({
 	
+	version: '0.1',
+	
 	implement: Event.Customs,
 	
 	options: {
@@ -34,6 +36,8 @@ DCalendar.core = Class.create({
 	
 	selected_cache: {},
 	
+	gray_cache: {},
+	
 	initialize: function(options) {
 		this.options = Object.extend(this.options, options || {});
 		this.curr_day = Date.now();
@@ -49,9 +53,42 @@ DCalendar.core = Class.create({
 				div.setAttribute('DCID', div.get('DCID') || DCalendar.DCID++);
 				div.id = 'dcid_' + div.get('DCID');
 				this.selected_cache[div.id] = {};
+				this.gray_cache[div.id] = {};
+				this.set_gray_cache(div.get('gray'), div.id);
 				this.containers.push(div);
 			}
 		}, this);
+	},
+	
+	set_gray_cache: function(gray, key) {
+		if (!gray) return;
+		var _gray = gray.split(';');
+		_gray.each(function(period) {
+			var _period = period.split('~'), _subkey = '', _value;
+			if (_period.length > 1) {
+				var _first = _period.first(), __first = _first.split('-'), _start = __first[2].to_i(), _end = _period.last().split('-')[2].to_i();
+				_subkey = __first.slice(0, 2).join('-');
+				_value = $R(_start, _end).toArray();
+			} else {
+				var __period = period.split('-');
+				_subkey = __period.slice(0, 2).join('-');
+				_value = [__period[2].to_i()];
+			}
+			if (!this.gray_cache[key][_subkey]) this.gray_cache[key][_subkey] = [];
+			this.gray_cache[key][_subkey] = this.gray_cache[key][_subkey].concat(_value);
+		}, this);
+	},
+	
+	is_gray: function(day, month, year, container) {
+		container = container || this.defaultc;
+		day = day || this.day;
+		month = month || this.month;
+		year = year || this.year;
+		
+		if (this.gray_cache[container.id][year + '-' + month.toPaddedString(2)])
+			return this.gray_cache[container.id][year + '-' + month.toPaddedString(2)].include(day);
+		else
+			return false;
 	},
 	
 	show: function() {
@@ -85,7 +122,7 @@ DCalendar.core = Class.create({
 		var _days = this.get_month_days(this.month-1);
 		var _html = '<table class="dcalendar" border="0" cellspacing="1" cellpadding="4"><tbody><tr class="dcal-title"><td colspan="3"><a href="#" id="' + this.defaultc.id + '_prev">上一月</a></td><td colspan="' + (_days-6) + '">' + this.curr_day.strftime('%Y年%m月') + '</td><td colspan="3"><a href="#" id="' + this.defaultc.id + '_next">下一月</a></td></tr><tr class="dcal-days" id="' + this.defaultc.id + '_days">';
 		_days.times(function(i) {
-			_html += '<td id="' + this.defaultc.id + '_days_' + (i + 1) + '">' + (i + 1) + '</td>';
+			_html += '<td id="' + this.defaultc.id + '_days_' + (i + 1) + '"' + (this.is_gray(i+1, this.month, this.year) ? ' class="saled"' : '') + '>' + (i + 1) + '</td>';
 		}, this);
 		_html += '</tr></tbody></table><div id="' + this.defaultc.id + '_selected" class="dcal-selected"></div>';
 		this.defaultc.innerHTML = _html;
@@ -113,13 +150,20 @@ DCalendar.core = Class.create({
 		
 		var _tds = days_line.getElementsByTagName('td');
 		$A(_tds).each(function(td) {
-			$(td).observe('click', function(e) {
+			td = $(td);
+			td.observe('click', function(e) {
+				if (this.className == 'saled') return;
 				var defaultc = $(this.id.split('_').slice(0, 2).join('_'));
 				_dcal.defaultc = defaultc;
 				this.className = this.className == 'selected' ? '' : 'selected';
 				_dcal.set_cache();
 				_dcal.refresh_selected();
-			})
+			});
+			
+			td.observe('mouseover', function(e) {
+				if (!_dcal.on_days_line) return;
+				if (this.className != 'selected' && this.className != 'saled') this.className = this.className == 'mouseover' ? '' : 'mouseover';
+			});
 		});
 		
 		days_line.observe('mousedown', function(e) {
@@ -127,7 +171,7 @@ DCalendar.core = Class.create({
 			_dcal.on_days_line = true;
 			if (target.get('tag') == 'td') {
 				_dcal.defaultc = $(target.id.split('_').slice(0, 2).join('_'));
-				target.className = target.className == 'selected' ? '' : 'selected';
+				if (target.className != 'saled') target.className = target.className == 'selected' ? '' : 'selected';
 				_dcal.onmouse_start = parseInt(target.innerHTML);
 			}
 		});
@@ -136,7 +180,7 @@ DCalendar.core = Class.create({
 			var target = e.target;
 			_dcal.on_days_line = false;
 			if (target.get('tag') == 'td') {
-				target.className = target.className == 'selected' ? '' : 'selected';
+				if (target.className != 'saled') target.className = target.className == 'selected' ? '' : 'selected';
 				var _end = parseInt(target.innerHTML);
 				if (_end < _dcal.onmouse_start) {
 					_dcal.onmouse_end = _dcal.onmouse_start;
@@ -147,8 +191,8 @@ DCalendar.core = Class.create({
 			}
 			
 			for (var i = _dcal.onmouse_start+1; i <= _dcal.onmouse_end-1; i++) {
-				var _td = $(_dcal.defaultc.id + '_days_' + i);
-				_td.className = _td.className == 'selected' ? '' : 'selected';
+				var _td = $i(_dcal.defaultc.id + '_days_' + i);
+				if (_td.className != 'saled') _td.className = _td.className == 'selected' ? '' : 'selected';
 			}
 			_dcal.set_cache();
 			_dcal.refresh_selected();
@@ -166,7 +210,6 @@ DCalendar.core = Class.create({
 		$A(_tds).each(function(td) {
 			_selected += td.className == 'selected' ? '1' : '0';
 		});
-		
 		this.selected_cache[container.id][this.year + '-' + this.month] = _selected;
 	},
 	
@@ -208,7 +251,7 @@ DCalendar.core = Class.create({
 	
 });
 
-document.onselectstart= function(event) {return false};
+document.onselectstart = function(event) {return false};
 
 document.observe('dom:ready', function() {
 	var dcal = new DCalendar.core({wrapper: $('main')});

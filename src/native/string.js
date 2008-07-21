@@ -167,6 +167,11 @@ Object.extend(String.prototype, {
 		return this.length > length ? this.slice(0, length - tail.length) : String(this);
 	},
 	
+	succ: function() {
+    return this.slice(0, this.length - 1) +
+      String.fromCharCode(this.charCodeAt(this.length - 1) + 1);
+  },
+	
 	/**
 	 * 将html tag从字符串里移除
 	 *

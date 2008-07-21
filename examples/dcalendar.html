@@ -18,6 +18,7 @@
 	<script src="../src/native/number.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/hash.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/native/date.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../src/native/range.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/dom/element.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/event/event.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../src/dom/element.event.js" type="text/javascript" charset="utf-8"></script>
@@ -55,6 +56,15 @@
 			color: #fff;
 		}
 		
+		.dcal-days td.mouseover{
+			background-color: #E6EEF6;
+		}
+		
+		.dcal-days td.saled{
+			background-color: #E8E8E8;
+			color: gray;
+		}
+		
 		.dcal-selected{
 			margin: 10px 20px;
 		}
@@ -69,7 +79,7 @@
 	<div id="main">
 		<h3>DCalendar <span class="author">by <a href="http://nowazhu.com/blog/">nowa</a></span></h3>
 		
-		<div jpc="dcalendar"></div>
+		<div jpc="dcalendar" gray="2008-07-03;2008-07-10~2008-07-17;2008-08-04~2008-08-20"></div>
 		<br><br><br>
 		<div jpc="dcalendar"></div>
 	</div>

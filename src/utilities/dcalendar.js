@@ -12,7 +12,7 @@ var DCalendar = {
 
 DCalendar.core = Class.create({
 	
-	version: '0.1',
+	version: '0.2',
 	
 	implement: Event.Customs,
 	
@@ -38,7 +38,11 @@ DCalendar.core = Class.create({
 	
 	available_cache: {},
 	
-	mode: 0,	// 0: normal mode, 1: available mode
+	mode: {},	// 0: normal mode, 1: available mode
+	
+	status: {},
+	
+	dump_to: {},
 	
 	initialize: function(options) {
 		this.options = Object.extend(this.options, options || {});
@@ -54,14 +58,40 @@ DCalendar.core = Class.create({
 				div = $(div);
 				div.setAttribute('DCID', div.get('DCID') || DCalendar.DCID++);
 				div.id = 'dcid_' + div.get('DCID');
+				this.mode[div.id] = 0;
+				this.status[div.id] = {};
 				this.selected_cache[div.id] = {};
 				this.gray_cache[div.id] = {};
 				this.available_cache[div.id] = {};
+				this.dump_to[div.id] = {};
 				this.set_attribute_cache(div.get('gray'), div.id, 'gray');
 				this.set_attribute_cache(div.get('available'), div.id, 'available');
+				this.load_status(div.get('status'), div.id);
+				this.set_dump(div.get('dump_to'), div.id);
 				this.containers.push(div);
 			}
 		}, this);
+	},
+	
+	set_dump: function(dump, key) {
+		if (!dump) return;
+		this.dump_to[key] = $(dump);
+	},
+	
+	load_status: function(status, key) {
+		if (!status) return;
+		status = new Hash(status.evalJSON());
+		status.each(function(pair) {
+			var _cache;
+			eval("_cache = this." + pair.key + '_cache');
+			if (!_cache) eval("this." + pair.key + "_cache = {};_cache = this." + pair.key + "_cache;");
+			if (!_cache[key]) _cache[key] = {};
+			this.set_attribute_cache(pair.value.period, key, pair.key);
+			this.status[key][pair.key] = pair.value;
+		}, this);
+		
+		// alert(Object.inspect(new Hash(this.status[key])));
+		// alert(new Hash(this.status2_cache[key]).inspect());
 	},
 	
 	set_attribute_cache: function(gray, key, attr) {
@@ -83,7 +113,31 @@ DCalendar.core = Class.create({
 			_cache[key][_subkey] = _cache[key][_subkey].concat(_value);
 		}, this);
 		
-		if (attr == 'available') this.mode = 1;
+		if (attr == 'available') this.mode[key] = 1;
+	},
+	
+	is_status: function(day, month, year, container) {
+		container = container || this.defaultc;
+		day = day || this.day;
+		month = month || this.month;
+		year = year || this.year;
+		
+		var _status = new Hash(this.status[container.id]);
+		var _result = [false, null];
+		_status.each(function(pair) {
+			var _cache;
+			eval("_cache = this." + pair.key + "_cache");
+			if (_cache[container.id][year + '-' + month.toPaddedString(2)]) {
+				if (_cache[container.id][year + '-' + month.toPaddedString(2)].include(day)) {
+					_result = [true, pair.value.color];
+					return;
+				}
+			}
+		}, this);
+		
+		// alert(_result.inspect());
+		
+		return _result;
 	},
 	
 	is_available: function(day, month, year, container) {
@@ -142,11 +196,24 @@ DCalendar.core = Class.create({
 		month = month || this.month;
 		year = year || this.year;
 		
-		if (this.mode == 0) {
+		if (this.mode[container.id] == 0) {
 			return this.is_gray(day, month, year, container);
 		} else {
 			return !this.is_available(day, month, year, container);
 		}
+	},
+	
+	day_status: function(day, month, year, container) {
+		container = container || this.defaultc;
+		day = day || this.day;
+		month = month || this.month;
+		year = year || this.year;
+		
+		var _status = this.is_status(day, month, year, container);
+		if (_status[0])
+			return ' style="background-color: ' + _status[1] + '"';
+		else
+			return '';
 	},
 	
 	create: function() {
@@ -154,7 +221,7 @@ DCalendar.core = Class.create({
 		var _days = this.get_month_days(this.month-1);
 		var _html = '<table class="dcalendar" border="0" cellspacing="1" cellpadding="4"><tbody><tr class="dcal-title"><td colspan="3"><a href="#" id="' + this.defaultc.id + '_prev">上一月</a></td><td colspan="' + (_days-6) + '">' + this.curr_day.strftime('%Y年%m月') + '</td><td colspan="3"><a href="#" id="' + this.defaultc.id + '_next">下一月</a></td></tr><tr class="dcal-days" id="' + this.defaultc.id + '_days">';
 		_days.times(function(i) {
-			_html += '<td id="' + this.defaultc.id + '_days_' + (i + 1) + '"' + (this.is_saled(i+1, this.month, this.year) ? ' class="saled"' : '') + '>' + (i + 1) + '</td>';
+			_html += '<td id="' + this.defaultc.id + '_days_' + (i + 1) + '"' + (this.is_saled(i+1, this.month, this.year) ? ' class="saled"' : this.day_status(i+1, this.month, this.year)) + '>' + (i + 1) + '</td>';
 		}, this);
 		_html += '</tr></tbody></table><div id="' + this.defaultc.id + '_selected" class="dcal-selected"></div>';
 		this.defaultc.innerHTML = _html;
@@ -243,30 +310,51 @@ DCalendar.core = Class.create({
 			_selected += td.className == 'selected' ? '1' : '0';
 		});
 		this.selected_cache[container.id][this.year + '-' + this.month] = _selected;
+		this.dump();
 	},
 	
-	format_cache: function(cache) {
+	dump: function(container) {
+		container = container || this.defaultc;
+		var _months = new Hash(this.selected_cache[container.id]), _result = '';
+		_months.each(function(pair) {
+			var _formated = this.format_cache(pair.value);
+			if (_formated != '') {
+				_result += _result == '' ? _formated : ',' + _formated;
+			}
+		}, this);
+		
+		try {
+			this.dump_to[container.id].value = _result;
+		} catch(e) {}
+	},
+	
+	format_cache: function(cache, is_append) {
+		is_append = is_append || true;
 		if (!$defined(cache)) return;
-		var _start = '', _end = '', _days = cache.length, _sel_wrapper = $i(this.defaultc.id + '_selected');
+		var _start = '', _end = '', _days = cache.length, _sel_wrapper = $i(this.defaultc.id + '_selected'), _result = '';
 		_sel_wrapper.innerHTML = '';
 		(_days).times(function(i) {
 			if (cache.charAt(i) == '1') {
+				var _the_day = this.year + '-' + this.month.toPaddedString(2) + '-' + (i + 1).toPaddedString(2);
 				$i(this.defaultc.id + '_days_' + (i + 1)).className = 'selected';
 				if (_start == '') {
-					_start = this.year + '-' + this.month.toPaddedString(2) + '-' + (i + 1).toPaddedString(2);
+					_start = _the_day;
 				} else {
-					_end = this.year + '-' + this.month.toPaddedString(2) + '-' + (i + 1).toPaddedString(2);
+					_end = _the_day;
 				}
 				if (i == (_days - 1)) {
-					if (_start != '') _sel_wrapper.appendChild(this.selected_item(_start, _end));
+					if (_start != '' && is_append) _sel_wrapper.appendChild(this.selected_item(_start, _end));
 				}
+				_result += _result == '' ? _the_day : ',' + _the_day;
 			} else {
 				_end = this.year + '-' + this.month.toPaddedString(2) + '-' + (i).toPaddedString(2)
-				if (_start != '') _sel_wrapper.appendChild(this.selected_item(_start, _end));
+				if (_start != '' && is_append) _sel_wrapper.appendChild(this.selected_item(_start, _end));
 				_start = '';
 				_end = '';
 			}
 		}, this);
+		
+		return _result;
 	},
 	
 	selected_item: function(start, end) {

@@ -36,6 +36,10 @@ DCalendar.core = Class.create({
 	
 	gray_cache: {},
 	
+	available_cache: {},
+	
+	mode: 0,	// 0: normal mode, 1: available mode
+	
 	initialize: function(options) {
 		this.options = Object.extend(this.options, options || {});
 		this.curr_day = Date.now();
@@ -52,17 +56,19 @@ DCalendar.core = Class.create({
 				div.id = 'dcid_' + div.get('DCID');
 				this.selected_cache[div.id] = {};
 				this.gray_cache[div.id] = {};
-				this.set_gray_cache(div.get('gray'), div.id);
+				this.available_cache[div.id] = {};
+				this.set_attribute_cache(div.get('gray'), div.id, 'gray');
+				this.set_attribute_cache(div.get('available'), div.id, 'available');
 				this.containers.push(div);
 			}
 		}, this);
 	},
 	
-	set_gray_cache: function(gray, key) {
+	set_attribute_cache: function(gray, key, attr) {
 		if (!gray) return;
 		var _gray = gray.split(';');
 		_gray.each(function(period) {
-			var _period = period.split('~'), _subkey = '', _value;
+			var _period = period.split('~'), _subkey = '', _value, _cache;
 			if (_period.length > 1) {
 				var _first = _period.first(), __first = _first.split('-'), _start = __first[2].to_i(), _end = _period.last().split('-')[2].to_i();
 				_subkey = __first.slice(0, 2).join('-');
@@ -72,9 +78,24 @@ DCalendar.core = Class.create({
 				_subkey = __period.slice(0, 2).join('-');
 				_value = [__period[2].to_i()];
 			}
-			if (!this.gray_cache[key][_subkey]) this.gray_cache[key][_subkey] = [];
-			this.gray_cache[key][_subkey] = this.gray_cache[key][_subkey].concat(_value);
+			eval('_cache = this.' + attr + '_cache');
+			if (!_cache[key][_subkey]) _cache[key][_subkey] = [];
+			_cache[key][_subkey] = _cache[key][_subkey].concat(_value);
 		}, this);
+		
+		if (attr == 'available') this.mode = 1;
+	},
+	
+	is_available: function(day, month, year, container) {
+		container = container || this.defaultc;
+		day = day || this.day;
+		month = month || this.month;
+		year = year || this.year;
+		
+		if (this.available_cache[container.id][year + '-' + month.toPaddedString(2)])
+			return this.available_cache[container.id][year + '-' + month.toPaddedString(2)].include(day);
+		else
+			return false;
 	},
 	
 	is_gray: function(day, month, year, container) {
@@ -115,12 +136,25 @@ DCalendar.core = Class.create({
 		this.fireEvent('beforeCreate');
 	},
 	
+	is_saled: function(day, month, year, container) {
+		container = container || this.defaultc;
+		day = day || this.day;
+		month = month || this.month;
+		year = year || this.year;
+		
+		if (this.mode == 0) {
+			return this.is_gray(day, month, year, container);
+		} else {
+			return !this.is_available(day, month, year, container);
+		}
+	},
+	
 	create: function() {
 		this.before_create();
 		var _days = this.get_month_days(this.month-1);
 		var _html = '<table class="dcalendar" border="0" cellspacing="1" cellpadding="4"><tbody><tr class="dcal-title"><td colspan="3"><a href="#" id="' + this.defaultc.id + '_prev">上一月</a></td><td colspan="' + (_days-6) + '">' + this.curr_day.strftime('%Y年%m月') + '</td><td colspan="3"><a href="#" id="' + this.defaultc.id + '_next">下一月</a></td></tr><tr class="dcal-days" id="' + this.defaultc.id + '_days">';
 		_days.times(function(i) {
-			_html += '<td id="' + this.defaultc.id + '_days_' + (i + 1) + '"' + (this.is_gray(i+1, this.month, this.year) ? ' class="saled"' : '') + '>' + (i + 1) + '</td>';
+			_html += '<td id="' + this.defaultc.id + '_days_' + (i + 1) + '"' + (this.is_saled(i+1, this.month, this.year) ? ' class="saled"' : '') + '>' + (i + 1) + '</td>';
 		}, this);
 		_html += '</tr></tbody></table><div id="' + this.defaultc.id + '_selected" class="dcal-selected"></div>';
 		this.defaultc.innerHTML = _html;

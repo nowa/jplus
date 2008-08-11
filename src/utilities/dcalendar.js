@@ -44,6 +44,10 @@ DCalendar.core = Class.create({
 	
 	dump_to: {},
 	
+	accessor: {},
+	
+	unaccessor: ["saled"],
+	
 	initialize: function(options) {
 		this.options = Object.extend(this.options, options || {});
 		this.curr_day = Date.now();
@@ -68,6 +72,7 @@ DCalendar.core = Class.create({
 				this.set_attribute_cache(div.get('available'), div.id, 'available');
 				this.load_status(div.get('status'), div.id);
 				this.set_dump(div.get('dump_to'), div.id);
+				this.accessor[div.id] = div.get('accessor') || 'all';
 				this.containers.push(div);
 			}
 		}, this);
@@ -88,8 +93,13 @@ DCalendar.core = Class.create({
 			if (!_cache[key]) _cache[key] = {};
 			this.set_attribute_cache(pair.value.period, key, pair.key);
 			this.status[key][pair.key] = pair.value;
+			if (pair.value['accessor']) {
+				// alert(pair.value['accessor']);
+				if (pair.value['accessor'] == 'false') this.unaccessor.push(pair.key);
+			}
 		}, this);
 		
+		// alert(this.unaccessor.inspect());
 		// alert(Object.inspect(new Hash(this.status[key])));
 		// alert(new Hash(this.status2_cache[key]).inspect());
 	},
@@ -103,22 +113,10 @@ DCalendar.core = Class.create({
 				var _start = _splited[0].to_date(), _end = _splited[1].to_date();
 				if (_end.month() > _start.month() || _end.year() > _start.year()) {
 					result.push(_splited[0] + '~' + _start.year() + '-' + _start.month() + '-' + this.days_of_month[_start.getMonth()]);
-					if ((_end.month() - _start.month()) == 2) {
-						result.push(_start.year() + '-' + (_start.month() + 1).toPaddedString(2) + '-01~' + _start.year() + '-' + (_start.month() + 1).toPaddedString(2) + '-' + this.days_of_month[_start.month()]);
-					} else if ((_end.month() - _start.month()) > 2 || _end.year() > _start.year()) {
-						var _range;
-						if (_end.year() > _start.year()) {
-							var point = _start.after('Month', 1);
-							while (point < (_end.year() + '-' + _end.month() + '-1').to_date()) {
-								result.push(point.year() + '-' + point.month().toPaddedString(2) + '-01~' + point.year() + '-' + point.month().toPaddedString(2) + '-' + this.days_of_month[point.getMonth()]);
-								point = point.after('Month', 1);
-							}
-						} else {
-							_range = $R(_start.month() + 1, _end.getMonth()).toArray();
-							_range.each(function(month) {
-								result.push(_start.year() + '-' + month.to_i().toPaddedString(2) + '-01~' + _start.year() + '-' + month.to_i().toPaddedString(2) + '-' + this.days_of_month[month-1]);
-							});
-						}
+					var point = _start.after('Month', 1);
+					while (point < (_end.year() + '-' + _end.month() + '-1').to_date()) {
+						result.push(point.year() + '-' + point.month().toPaddedString(2) + '-01~' + point.year() + '-' + point.month().toPaddedString(2) + '-' + this.days_of_month[point.getMonth()]);
+						point = point.after('Month', 1);
 					}
 					result.push(_end.year() + '-' + _end.month().toPaddedString(2) + '-01~' + _splited[1]);
 				} else {
@@ -166,7 +164,7 @@ DCalendar.core = Class.create({
 			eval("_cache = this." + pair.key + "_cache");
 			if (_cache[container.id][year + '-' + month.toPaddedString(2)]) {
 				if (_cache[container.id][year + '-' + month.toPaddedString(2)].include(day)) {
-					_result = [true, pair.value.color];
+					_result = [true, pair.value.color, pair.key];
 					return;
 				}
 			}
@@ -258,7 +256,8 @@ DCalendar.core = Class.create({
 		var _days = this.get_month_days(this.month-1);
 		var _html = '<table class="dcalendar" border="0" cellspacing="1" cellpadding="4"><tbody><tr class="dcal-title"><td colspan="3"><a href="#" id="' + this.defaultc.id + '_prev">上一月</a></td><td colspan="' + (_days-6) + '">' + this.curr_day.strftime('%Y年%m月') + '</td><td colspan="3"><a href="#" id="' + this.defaultc.id + '_next">下一月</a></td></tr><tr class="dcal-days" id="' + this.defaultc.id + '_days">';
 		_days.times(function(i) {
-			_html += '<td id="' + this.defaultc.id + '_days_' + (i + 1) + '"' + (this.is_saled(i+1, this.month, this.year) ? ' class="saled"' : this.day_status(i+1, this.month, this.year)) + '>' + (i + 1) + '</td>';
+			var _is_status = this.is_status(i+1, this.month, this.year);
+			_html += '<td st="' + (this.is_saled(i+1, this.month, this.year) ? 'saled' : (_is_status[0] ? _is_status[2] + '" realst="' + _is_status[2] : 'available')) + '" id="' + this.defaultc.id + '_days_' + (i + 1) + '"' + (this.is_saled(i+1, this.month, this.year) ? ' class="saled"' : this.day_status(i+1, this.month, this.year)) + '>' + (i + 1) + '</td>';
 		}, this);
 		_html += '</tr></tbody></table><div id="' + this.defaultc.id + '_selected" class="dcal-selected"></div>';
 		this.defaultc.innerHTML = _html;
@@ -284,21 +283,25 @@ DCalendar.core = Class.create({
 			return false;
 		});
 		
+		if (this.accessor[this.defaultc.id] == 'readonly') return;
+		
 		var _tds = days_line.getElementsByTagName('td');
 		$A(_tds).each(function(td) {
 			td = $(td);
 			td.observe('click', function(e) {
-				if (this.className == 'saled') return;
+				if (_dcal.unaccessor.include(this.get('st'))) return;
 				var defaultc = $(this.id.split('_').slice(0, 2).join('_'));
 				_dcal.defaultc = defaultc;
 				this.className = this.className == 'selected' ? '' : 'selected';
+				this.setAttribute('st', this.className == '' ? this.get('realst') ? this.get('realst') : 'available' : this.className);
 				_dcal.set_cache();
 				_dcal.refresh_selected();
 			});
 			
 			td.observe('mouseover', function(e) {
 				if (!_dcal.on_days_line) return;
-				if (this.className != 'selected' && this.className != 'saled') this.className = this.className == 'mouseover' ? '' : 'mouseover';
+				if (!_dcal.unaccessor.concat(['selected']).include(this.get('st'))) this.className = this.className == 'mouseover' ? '' : 'mouseover';
+				this.setAttribute('st', this.className == '' ? this.get('realst') ? this.get('realst') : 'available' : this.className);
 			});
 		});
 		
@@ -307,7 +310,8 @@ DCalendar.core = Class.create({
 			_dcal.on_days_line = true;
 			if (target.get('tag') == 'td') {
 				_dcal.defaultc = $(target.id.split('_').slice(0, 2).join('_'));
-				if (target.className != 'saled') target.className = target.className == 'selected' ? '' : 'selected';
+				if (!_dcal.unaccessor.include(target.get('st'))) target.className = target.className == 'selected' ? '' : 'selected';
+				target.setAttribute('st', target.className == '' ? target.get('realst') ? target.get('realst') : 'available' : target.className);
 				_dcal.onmouse_start = parseInt(target.innerHTML);
 			}
 		});
@@ -316,7 +320,8 @@ DCalendar.core = Class.create({
 			var target = e.target;
 			_dcal.on_days_line = false;
 			if (target.get('tag') == 'td') {
-				if (target.className != 'saled') target.className = target.className == 'selected' ? '' : 'selected';
+				if (!_dcal.unaccessor.include(target.get('st'))) target.className = target.className == 'selected' ? '' : 'selected';
+				target.setAttribute('st', target.className == '' ? target.get('realst') ? target.get('realst') : 'available' : target.className);
 				var _end = parseInt(target.innerHTML);
 				if (_end < _dcal.onmouse_start) {
 					_dcal.onmouse_end = _dcal.onmouse_start;
@@ -328,7 +333,8 @@ DCalendar.core = Class.create({
 			
 			for (var i = _dcal.onmouse_start+1; i <= _dcal.onmouse_end-1; i++) {
 				var _td = $i(_dcal.defaultc.id + '_days_' + i);
-				if (_td.className != 'saled') _td.className = _td.className == 'selected' ? '' : 'selected';
+				if (!_dcal.unaccessor.include(_td.getAttribute('st'))) _td.className = _td.className == 'selected' ? '' : 'selected';
+				_td.setAttribute('st', _td.className == '' ? _td.getAttribute('realst') ? _td.getAttribute('realst') : 'available' : _td.className);
 			}
 			_dcal.set_cache();
 			_dcal.refresh_selected();

@@ -104,6 +104,10 @@ Object.extend(Date.prototype, {
 	
 	toJSON: function() {
 		return this.inspect();
+	},
+	
+	to_s: function() {
+		return this.year() + '-' + this.month() + '-' + this.day();
 	}
 	
 });

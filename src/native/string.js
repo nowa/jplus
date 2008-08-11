@@ -315,6 +315,12 @@ Object.extend(String.prototype, {
 		return parseInt(this, radix || 10);
 	},
 	
+	to_date: function() {
+		var _this = this.split('-');
+		if (_this.length < 3) return null;
+		return new Date(_this[0], _this[1].to_i() - 1, _this[2]);
+	},
+	
 	/**
 	 * 根据指定的filter替换JSON字符串
 	 *

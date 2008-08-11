@@ -69,11 +69,11 @@
 			available: 	除了这个里面的时间段外，都不可选
 			status:		定义了一些日期状态，用指定的颜色显示。格式为JSON。{'status_name': {'period': '时间段', 'color':'指定的颜色，如果是十六进制的颜色值，必须包含#'}}
 			dumo_to:	将选择的结果dump到指定id的input字段
-		 -->
+		-->
 		<div jpc="dcalendar" gray="2008-07-03;2008-07-10~2008-07-17;2008-08-04~2008-08-20" available="2008-08-04~2008-08-20" status="{'status1': {'period':'2008-08-07~2008-08-10', 'color':'red'}, 'status2':{'period':'2008-08-14', 'color':'green'}}" dump_to="dcid0_dump"></div>
 		<input type="hidden" name="dcid0_dump" value="" id="dcid0_dump" />
 		<br><br><br>
-		<div jpc="dcalendar" status="{'status1': {'period': '2008-08-17~2008-08-20', 'color': 'orange'}}"></div>
+		<div jpc="dcalendar" gray="2008-08-04~2008-09-20" status="{'status1': {'period': '2008-08-17~2008-08-20', 'color': 'orange'}}"></div>
 	</div>
 
 </body>

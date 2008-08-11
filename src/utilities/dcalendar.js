@@ -94,9 +94,46 @@ DCalendar.core = Class.create({
 		// alert(new Hash(this.status2_cache[key]).inspect());
 	},
 	
+	format_period: function(period) {
+		if (!period) return;
+		var periods = period.split(';');
+		return periods.inject([], function(result, p) {
+			if (p.include('~')) {
+				var _splited = p.split('~');
+				var _start = _splited[0].to_date(), _end = _splited[1].to_date();
+				if (_end.month() > _start.month() || _end.year() > _start.year()) {
+					result.push(_splited[0] + '~' + _start.year() + '-' + _start.month() + '-' + this.days_of_month[_start.getMonth()]);
+					if ((_end.month() - _start.month()) == 2) {
+						result.push(_start.year() + '-' + (_start.month() + 1).toPaddedString(2) + '-01~' + _start.year() + '-' + (_start.month() + 1).toPaddedString(2) + '-' + this.days_of_month[_start.month()]);
+					} else if ((_end.month() - _start.month()) > 2 || _end.year() > _start.year()) {
+						var _range;
+						if (_end.year() > _start.year()) {
+							var point = _start.after('Month', 1);
+							while (point < (_end.year() + '-' + _end.month() + '-1').to_date()) {
+								result.push(point.year() + '-' + point.month().toPaddedString(2) + '-01~' + point.year() + '-' + point.month().toPaddedString(2) + '-' + this.days_of_month[point.getMonth()]);
+								point = point.after('Month', 1);
+							}
+						} else {
+							_range = $R(_start.month() + 1, _end.getMonth()).toArray();
+							_range.each(function(month) {
+								result.push(_start.year() + '-' + month.to_i().toPaddedString(2) + '-01~' + _start.year() + '-' + month.to_i().toPaddedString(2) + '-' + this.days_of_month[month-1]);
+							});
+						}
+					}
+					result.push(_end.year() + '-' + _end.month().toPaddedString(2) + '-01~' + _splited[1]);
+				} else {
+					result.push(p);
+				}
+			} else {
+				result.push(p);
+			}
+			return result;
+		}, this);
+	},
+	
 	set_attribute_cache: function(gray, key, attr) {
 		if (!gray) return;
-		var _gray = gray.split(';');
+		var _gray = this.format_period(gray);
 		_gray.each(function(period) {
 			var _period = period.split('~'), _subkey = '', _value, _cache;
 			if (_period.length > 1) {

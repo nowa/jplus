@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>lib/protodoc.rb</string>
+	<string>examples/dev.html</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -26,143 +26,130 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>29</integer>
-				<key>line</key>
-				<integer>65</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>24</integer>
-		</dict>
-		<key>lib/protodoc.rb</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>3</integer>
-				<key>line</key>
-				<integer>10</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>src/dom/element.event.js</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>32</integer>
-				<key>line</key>
 				<integer>13</integer>
+				<key>line</key>
+				<integer>18</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>143</integer>
+			<integer>0</integer>
 		</dict>
-		<key>src/dom/element.js</key>
+		<key>examples/dev.html</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>17</integer>
+				<integer>34</integer>
 				<key>line</key>
-				<integer>111</integer>
+				<integer>8</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>268</integer>
+			<integer>0</integer>
 		</dict>
-		<key>src/native/array.js</key>
+		<key>src/core/object.js</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>19</integer>
+				<integer>6</integer>
 				<key>line</key>
-				<integer>156</integer>
+				<integer>67</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>52</integer>
+			<integer>44</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>1</integer>
+				<key>line</key>
+				<integer>67</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>8</integer>
+				<key>line</key>
+				<integer>67</integer>
+			</dict>
 		</dict>
-		<key>src/native/date.js</key>
+		<key>src/native/hash.js</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>3</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>94</integer>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>66</integer>
+			<integer>6</integer>
 		</dict>
-		<key>src/native/enumerable.js</key>
+		<key>src/native/string.js</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>30</integer>
+				<integer>5</integer>
 				<key>line</key>
-				<integer>29</integer>
+				<integer>354</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>79</integer>
-		</dict>
-		<key>src/native/number.js</key>
-		<dict>
-			<key>caret</key>
+			<integer>325</integer>
+			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
-				<integer>68</integer>
+				<integer>2</integer>
 				<key>line</key>
-				<integer>57</integer>
+				<integer>354</integer>
 			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>40</integer>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>10</integer>
+				<key>line</key>
+				<integer>354</integer>
+			</dict>
 		</dict>
 		<key>src/utilities/dcalendar.js</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>30</integer>
+				<integer>14</integer>
 				<key>line</key>
-				<integer>149</integer>
+				<integer>14</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>131</integer>
+			<integer>0</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
 		<string>examples/dcalendar.html</string>
+		<string>examples/dev.html</string>
 		<string>src/utilities/dcalendar.js</string>
-		<string>lib/protodoc.rb</string>
-		<string>src/dom/element.js</string>
-		<string>src/native/array.js</string>
-		<string>src/dom/element.event.js</string>
-		<string>src/native/number.js</string>
-		<string>src/native/enumerable.js</string>
-		<string>src/native/date.js</string>
+		<string>src/core/object.js</string>
+		<string>src/native/string.js</string>
+		<string>src/native/hash.js</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
-	<true/>
+	<false/>
 	<key>windowFrame</key>
-	<string>{{279, 64}, {1143, 814}}</string>
+	<string>{{253, 64}, {1143, 814}}</string>
 </dict>
 </plist>

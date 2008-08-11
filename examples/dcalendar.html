@@ -65,10 +65,15 @@
 		<h3>DCalendar <span class="author">by <a href="http://nowazhu.com/blog/">nowa</a></span></h3>
 		
 		<!-- 
-			gray:		 这个里面的时间段是指定不能选择的时间段，除此之外的都可以选择
+			gray:		 这个里面的时间段是指定不能选择的时间段，除此之外的都可以选择。多个时间段之间使用逗号隔开
 			available: 	除了这个里面的时间段外，都不可选
 			status:		定义了一些日期状态，用指定的颜色显示。格式为JSON。{'status_name': {'period': '时间段', 'color':'指定的颜色，如果是十六进制的颜色值，必须包含#'}}
+				period:		此状态影响的时间段，多个时间段之间用分号隔开。
+				color:		此状态显示时的背景颜色值，如'red'、'#080808'等
+				accessor:	此状态下的日期的可访问属性，如果设置为false则不可修改
+			
 			dumo_to:	将选择的结果dump到指定id的input字段
+			accessor:	控件的可访问属性，如果设置为readonly则只读，不可修改
 		-->
 		<div jpc="dcalendar" gray="2008-07-03;2008-07-10~2008-07-17;2008-08-04~2008-08-20" available="2008-08-04~2008-08-20" status="{'status1': {'period':'2008-08-07~2008-08-10', 'color':'red'}, 'status2':{'period':'2008-08-09～2008-08-11', 'color':'green', 'accessor':'false'}}" dump_to="dcid0_dump"></div>
 		<input type="hidden" name="dcid0_dump" value="" id="dcid0_dump" />

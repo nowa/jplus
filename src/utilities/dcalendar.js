@@ -323,6 +323,7 @@ DCalendar.core = Class.create({
 				if (!_dcal.unaccessor.include(target.get('st'))) target.className = target.className == 'selected' ? '' : 'selected';
 				target.setAttribute('st', target.className == '' ? target.get('realst') ? target.get('realst') : 'available' : target.className);
 				var _end = parseInt(target.innerHTML);
+				// if (_end = _dcal.onmouse_start) return;
 				if (_end < _dcal.onmouse_start) {
 					_dcal.onmouse_end = _dcal.onmouse_start;
 					_dcal.onmouse_start = _end;
@@ -348,10 +349,11 @@ DCalendar.core = Class.create({
 	
 	set_cache: function(container) {
 		container = container || this.defaultc;
-		var days_line = $(this.defaultc.id + '_days'), _tds = days_line.getElementsByTagName('td'), _selected = '';
-		$A(_tds).each(function(td) {
-			_selected += td.className == 'selected' ? '1' : '0';
-		});
+		var _days = this.days_of_month[this.month-1], _selected = '';
+		(_days).times(function(i) {
+			var _td = $i(this.defaultc.id + '_days_' + (i + 1));
+			_selected += _td.className == 'selected' ? '1' : '0';
+		}, this);
 		this.selected_cache[container.id][this.year + '-' + this.month] = _selected;
 		this.dump();
 	},
@@ -360,7 +362,8 @@ DCalendar.core = Class.create({
 		container = container || this.defaultc;
 		var _months = new Hash(this.selected_cache[container.id]), _result = '';
 		_months.each(function(pair) {
-			var _formated = this.format_cache(pair.value);
+			var _date = pair.key.split('-');
+			var _formated = this.format_cache(pair.value, _date[0].to_i(), _date[1].to_i(), false);
 			if (_formated != '') {
 				_result += _result == '' ? _formated : ',' + _formated;
 			}
@@ -371,15 +374,17 @@ DCalendar.core = Class.create({
 		} catch(e) {}
 	},
 	
-	format_cache: function(cache, is_append) {
+	format_cache: function(cache, year, month, is_append) {
 		is_append = is_append || true;
+		year = year || this.year;
+		month = month || this.month;
 		if (!$defined(cache)) return;
 		var _start = '', _end = '', _days = cache.length, _sel_wrapper = $i(this.defaultc.id + '_selected'), _result = '';
 		_sel_wrapper.innerHTML = '';
 		(_days).times(function(i) {
 			if (cache.charAt(i) == '1') {
-				var _the_day = this.year + '-' + this.month.toPaddedString(2) + '-' + (i + 1).toPaddedString(2);
-				$i(this.defaultc.id + '_days_' + (i + 1)).className = 'selected';
+				var _the_day = year + '-' + month.toPaddedString(2) + '-' + (i + 1).toPaddedString(2);
+				if (is_append && month == this.month) $i(this.defaultc.id + '_days_' + (i + 1)).className = 'selected';
 				if (_start == '') {
 					_start = _the_day;
 				} else {
@@ -390,7 +395,7 @@ DCalendar.core = Class.create({
 				}
 				_result += _result == '' ? _the_day : ',' + _the_day;
 			} else {
-				_end = this.year + '-' + this.month.toPaddedString(2) + '-' + (i).toPaddedString(2)
+				_end = year + '-' + month.toPaddedString(2) + '-' + (i).toPaddedString(2)
 				if (_start != '' && is_append) _sel_wrapper.appendChild(this.selected_item(_start, _end));
 				_start = '';
 				_end = '';

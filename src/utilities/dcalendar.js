@@ -50,10 +50,10 @@ DCalendar.core = Class.create({
 	
 	initialize: function(options) {
 		this.options = Object.extend(this.options, options || {});
-		this.curr_day = Date.now();
-		this.year = this.curr_day.year();
-		this.month = this.curr_day.month();
-		this.day =  this.curr_day.day();
+		this.curr_day = {};
+		this.year = {};
+		this.month = {};
+		this.day = {};
 		
 		var _wrapper = this.options.wrapper ? this.options.wrapper : document;
 		var divs = _wrapper.getElementsByTagName('div');
@@ -62,6 +62,12 @@ DCalendar.core = Class.create({
 				div = $(div);
 				div.setAttribute('DCID', div.get('DCID') || DCalendar.DCID++);
 				div.id = 'dcid_' + div.get('DCID');
+				
+				this.curr_day[div.id] = Date.now();
+				this.year[div.id] = this.curr_day[div.id].year();
+				this.month[div.id] = this.curr_day[div.id].month();
+				this.day[div.id] = this.curr_day[div.id].day();
+				
 				this.mode[div.id] = 0;
 				this.status[div.id] = {};
 				this.selected_cache[div.id] = {};
@@ -153,9 +159,9 @@ DCalendar.core = Class.create({
 	
 	is_status: function(day, month, year, container) {
 		container = container || this.defaultc;
-		day = day || this.day;
-		month = month || this.month;
-		year = year || this.year;
+		day = day || this.day[container.id];
+		month = month || this.month[container.id];
+		year = year || this.year[container.id];
 		
 		var _status = new Hash(this.status[container.id]);
 		var _result = [false, null];
@@ -177,9 +183,9 @@ DCalendar.core = Class.create({
 	
 	is_available: function(day, month, year, container) {
 		container = container || this.defaultc;
-		day = day || this.day;
-		month = month || this.month;
-		year = year || this.year;
+		day = day || this.day[container.id];
+		month = month || this.month[container.id];
+		year = year || this.year[container.id];
 		
 		if (this.available_cache[container.id][year + '-' + month.toPaddedString(2)])
 			return this.available_cache[container.id][year + '-' + month.toPaddedString(2)].include(day);
@@ -189,9 +195,9 @@ DCalendar.core = Class.create({
 	
 	is_gray: function(day, month, year, container) {
 		container = container || this.defaultc;
-		day = day || this.day;
-		month = month || this.month;
-		year = year || this.year;
+		day = day || this.day[container.id];
+		month = month || this.month[container.id];
+		year = year || this.year[container.id];
 		
 		if (this.gray_cache[container.id][year + '-' + month.toPaddedString(2)])
 			return this.gray_cache[container.id][year + '-' + month.toPaddedString(2)].include(day);
@@ -209,10 +215,10 @@ DCalendar.core = Class.create({
 	
 	change_to_date: function(date) {
 		this.fireEvent('onMonthChange');
-		this.curr_day = date;
-		this.year = this.curr_day.year();
-		this.month = this.curr_day.month();
-		this.day =  this.curr_day.day();
+		this.curr_day[this.defaultc.id] = date;
+		this.year[this.defaultc.id] = this.curr_day[this.defaultc.id].year();
+		this.month[this.defaultc.id] = this.curr_day[this.defaultc.id].month();
+		this.day[this.defaultc.id] =  this.curr_day[this.defaultc.id].day();
 		this.create();
 		this.refresh_selected();
 	},
@@ -227,9 +233,9 @@ DCalendar.core = Class.create({
 	
 	is_saled: function(day, month, year, container) {
 		container = container || this.defaultc;
-		day = day || this.day;
-		month = month || this.month;
-		year = year || this.year;
+		day = day || this.day[container.id];
+		month = month || this.month[container.id];
+		year = year || this.year[container.id];
 		
 		if (this.mode[container.id] == 0) {
 			return this.is_gray(day, month, year, container);
@@ -240,9 +246,9 @@ DCalendar.core = Class.create({
 	
 	day_status: function(day, month, year, container) {
 		container = container || this.defaultc;
-		day = day || this.day;
-		month = month || this.month;
-		year = year || this.year;
+		day = day || this.day[container.id];
+		month = month || this.month[container.id];
+		year = year || this.year[container.id];
 		
 		var _status = this.is_status(day, month, year, container);
 		if (_status[0])
@@ -253,11 +259,11 @@ DCalendar.core = Class.create({
 	
 	create: function() {
 		this.before_create();
-		var _days = this.get_month_days(this.month-1);
-		var _html = '<table class="dcalendar" border="0" cellspacing="1" cellpadding="4"><tbody><tr class="dcal-title"><td colspan="3"><a href="#" id="' + this.defaultc.id + '_prev">上一月</a></td><td colspan="' + (_days-6) + '">' + this.curr_day.strftime('%Y年%m月') + '</td><td colspan="3"><a href="#" id="' + this.defaultc.id + '_next">下一月</a></td></tr><tr class="dcal-days" id="' + this.defaultc.id + '_days">';
+		var _days = this.get_month_days(this.month[this.defaultc.id]-1);
+		var _html = '<table class="dcalendar" border="0" cellspacing="1" cellpadding="4"><tbody><tr class="dcal-title"><td colspan="3"><a href="#" id="' + this.defaultc.id + '_prev">上一月</a></td><td colspan="' + (_days-6) + '">' + this.curr_day[this.defaultc.id].strftime('%Y年%m月') + '</td><td colspan="3"><a href="#" id="' + this.defaultc.id + '_next">下一月</a></td></tr><tr class="dcal-days" id="' + this.defaultc.id + '_days">';
 		_days.times(function(i) {
-			var _is_status = this.is_status(i+1, this.month, this.year);
-			_html += '<td st="' + (this.is_saled(i+1, this.month, this.year) ? 'saled' : (_is_status[0] ? _is_status[2] + '" realst="' + _is_status[2] : 'available')) + '" id="' + this.defaultc.id + '_days_' + (i + 1) + '"' + (this.is_saled(i+1, this.month, this.year) ? ' class="saled"' : this.day_status(i+1, this.month, this.year)) + '>' + (i + 1) + '</td>';
+			var _is_status = this.is_status(i+1, this.month[this.defaultc.id], this.year[this.defaultc.id]);
+			_html += '<td st="' + (this.is_saled(i+1, this.month[this.defaultc.id], this.year[this.defaultc.id]) ? 'saled' : (_is_status[0] ? _is_status[2] + '" realst="' + _is_status[2] : 'available')) + '" id="' + this.defaultc.id + '_days_' + (i + 1) + '"' + (this.is_saled(i+1, this.month[this.defaultc.id], this.year[this.defaultc.id]) ? ' class="saled"' : this.day_status(i+1, this.month[this.defaultc.id], this.year[this.defaultc.id])) + '>' + (i + 1) + '</td>';
 		}, this);
 		_html += '</tr></tbody></table><div id="' + this.defaultc.id + '_selected" class="dcal-selected"></div>';
 		this.defaultc.innerHTML = _html;
@@ -273,13 +279,13 @@ DCalendar.core = Class.create({
 		
 		prev.observe('click', function(e) {
 			_dcal.set_default($(this.id.split('_').slice(0, 2).join('_')));
-			_dcal.change_to_date(_dcal.curr_day.after('Month', -1));
+			_dcal.change_to_date(_dcal.curr_day[_dcal.defaultc.id].after('Month', -1));
 			return false;
 		});
 		
 		next.observe('click', function(e) {
 			_dcal.set_default($(this.id.split('_').slice(0, 2).join('_')));
-			_dcal.change_to_date(_dcal.curr_day.after('Month', 1));
+			_dcal.change_to_date(_dcal.curr_day[_dcal.defaultc.id].after('Month', 1));
 			return false;
 		});
 		
@@ -344,17 +350,17 @@ DCalendar.core = Class.create({
 	
 	refresh_selected: function(container) {
 		container = container || this.defaultc;
-		this.format_cache(this.selected_cache[container.id][this.year + '-' + this.month]);
+		this.format_cache(this.selected_cache[container.id][this.year[container.id] + '-' + this.month[container.id]]);
 	},
 	
 	set_cache: function(container) {
 		container = container || this.defaultc;
-		var _days = this.days_of_month[this.month-1], _selected = '';
+		var _days = this.days_of_month[this.month[container.id]-1], _selected = '';
 		(_days).times(function(i) {
 			var _td = $i(this.defaultc.id + '_days_' + (i + 1));
 			_selected += _td.className == 'selected' ? '1' : '0';
 		}, this);
-		this.selected_cache[container.id][this.year + '-' + this.month] = _selected;
+		this.selected_cache[container.id][this.year[container.id] + '-' + this.month[container.id]] = _selected;
 		this.dump();
 	},
 	
@@ -376,15 +382,15 @@ DCalendar.core = Class.create({
 	
 	format_cache: function(cache, year, month, is_append) {
 		is_append = is_append || true;
-		year = year || this.year;
-		month = month || this.month;
+		year = year || this.year[this.defaultc.id];
+		month = month || this.month[this.defaultc.id];
 		if (!$defined(cache)) return;
 		var _start = '', _end = '', _days = cache.length, _sel_wrapper = $i(this.defaultc.id + '_selected'), _result = '';
 		_sel_wrapper.innerHTML = '';
 		(_days).times(function(i) {
 			if (cache.charAt(i) == '1') {
 				var _the_day = year + '-' + month.toPaddedString(2) + '-' + (i + 1).toPaddedString(2);
-				if (is_append && month == this.month) $i(this.defaultc.id + '_days_' + (i + 1)).className = 'selected';
+				if (is_append && month == this.month[this.defaultc.id]) $i(this.defaultc.id + '_days_' + (i + 1)).className = 'selected';
 				if (_start == '') {
 					_start = _the_day;
 				} else {
@@ -413,7 +419,7 @@ DCalendar.core = Class.create({
 	
 	get_month_days: function(month) {
 		var _days = this.days_of_month[month];
-		if (month==1 && (this.year%4==0 && this.year%100!=0 || this.year%400==0)) _days++;
+		if (month==1 && (this.year[this.defaultc.id]%4==0 && this.year[this.defaultc.id]%100!=0 || this.year[this.defaultc.id]%400==0)) _days++;
 		return _days;
 	}
 	
